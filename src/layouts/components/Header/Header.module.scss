@@ -1,0 +1,43 @@
+.wrapper {
+    width: 100%;
+    padding: 10px;
+    box-shadow: var(--shadow-color);
+
+    .home-icon {
+        cursor: pointer;
+        width: 3.2rem;
+        height: 3.2rem;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .search {
+        width: 100%;
+    }
+
+    .category {
+        width: 100%;
+    }
+
+    .search-value {
+        i {
+            color: var(--primary-color);
+        }
+    }
+
+    .cart-wrapper {
+        cursor: pointer;
+        width: 3.2rem;
+        height: 3.2rem;
+
+        .badge-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 1.7rem;
+            height: 1.7rem;
+            border-radius: 50%;
+            border: 1px solid var(--primary-color);
+        }
+    }
+}

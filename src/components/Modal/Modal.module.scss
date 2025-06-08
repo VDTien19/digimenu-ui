@@ -1,0 +1,126 @@
+.modal {
+    --header-modal: 50px;
+
+    width: 100%;
+    height: 100%;
+}
+
+.modal-overlay {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    animation: showIn ease-in 0.4s;
+
+    &.closing {
+        animation: fadeOut 0.3s ease forwards;
+    }
+}
+
+.modal-content {
+    opacity: 1;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    max-width: 100%;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: 8px;
+    background: white;
+    animation: show ease-in-out 0.3s forwards, showIn ease-in 0.3s; /* forwards để giữ trạng thái cuối cùng */
+    box-shadow: var(--shadow-color);
+
+    &.closing {
+        animation: hide 0.3s ease forwards;
+    }
+}
+
+.modal-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--header-modal);
+    padding: 12px 8px;
+
+    &.partition::after {
+        content: '';
+        width: 100%;
+        height: 0.5px;
+        background-color: #747474;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+    }
+}
+
+.modal-title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    font-family: 'Mono', Tahoma, Geneva, Verdana, sans-serif;
+    height: var(--header-modal);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    margin-left: 6px;
+}
+
+.close-btn {
+    height: var(--header-modal);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.close-icon {
+    cursor: pointer;
+    padding: 4px;
+    transform: rotate(0deg);
+    transition: transform ease-in-out 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    fill: #000;
+
+    &:hover {
+        fill: #7e7e7e;
+        transition: fill ease-out 0.2s;
+    }
+}
+
+.modal-body {
+    // padding: 28px;
+    // padding-top: 0;
+    max-height: calc(80vh - var(--header-modal));
+    overflow-y: overlay;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes show {
+    from {
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes showIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media (min-width: 500px) {
+    .modal-content {
+        width: 460px;
+    }
+}

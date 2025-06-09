@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faChartBar, faUtensils, faTableList, faCartArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faChartBar, faUtensils, faTableList, faCartArrowDown, faMoneyCheckDollar } from '@fortawesome/free-solid-svg-icons'
 
 import config from '~/config';
 import styles from './Sidebar.module.scss';
@@ -20,6 +20,11 @@ const MENU_ITEMS = [
         title: 'Quản lý đơn hàng',
         to: config.routes.service_order,
         icon: <FontAwesomeIcon icon={faCartArrowDown} />
+    }, 
+    {
+        title: 'Quản lý thanh toán',
+        to: config.routes.service_payment,
+        icon: <FontAwesomeIcon icon={faMoneyCheckDollar} />
     }, 
     {
         title: 'Quản lý bàn',

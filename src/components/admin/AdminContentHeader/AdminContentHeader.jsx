@@ -6,7 +6,7 @@ import { AddIcon } from '~/components/Icons';
 
 const cx = classNames.bind(styles);
 
-function AdminContentHeader ({ title, children, titleBtn, onClick }) {
+function AdminContentHeader ({ title, children, titleBtn, onClick, isAdd=true }) {
     return (
         <div className={cx('wrapper', 'flex', 'justify-between', 'mt-4')}>
             <div>
@@ -14,12 +14,14 @@ function AdminContentHeader ({ title, children, titleBtn, onClick }) {
             </div>
             <div>
                 <div>{children}</div>
-                <div onClick={onClick} className={cx('btn-wrapper', 'rounded-xl', 'cursor-pointer', 'p-2')}>
-                    <button className={cx('flex', 'items-center', 'font-medium', 'cursor-pointer')}>
-                        <AddIcon className={cx('mr-2')} />
-                        <span className={cx('uppercase')}>{titleBtn}</span>
-                    </button>
-                </div>
+                {isAdd && (
+                    <div onClick={onClick} className={cx('btn-wrapper', 'rounded-xl', 'cursor-pointer', 'p-2')}>
+                        <button className={cx('flex', 'items-center', 'font-medium', 'cursor-pointer')}>
+                            <AddIcon className={cx('mr-2')} />
+                            <span className={cx('uppercase')}>{titleBtn}</span>
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

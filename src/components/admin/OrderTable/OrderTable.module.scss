@@ -1,0 +1,37 @@
+.view-btn {
+    cursor: pointer;
+    width: 80px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 12px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+        border-color: var(--green-color);
+    }
+
+    span {
+        margin-right: -8px;
+    }
+}
+
+.status-select {
+    // width: 100%;
+    padding: 0.3rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1.2rem;
+    font-weight: 500;
+    background-color: var(--white-color);
+    transition: all 0.3s ease-in-out;
+
+    &:focus {
+        outline: none;
+        border-color: var(--green-color);
+        box-shadow: 0 0 5px rgba(0, 128, 0, 0.2);
+    }
+}

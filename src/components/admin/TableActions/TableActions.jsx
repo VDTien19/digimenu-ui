@@ -7,7 +7,7 @@ import { EyeIcon, TrashIcon, EditIcon, DownloadIcon } from '~/components/Icons';
 
 const cx = classNames.bind(styles);
 
-function TableActions({ data, onView, onDownload, onEdit, onDelete, isView=true, isDownload=false }) {
+function TableActions({ data, onView, onDownload, onEdit, onDelete, isView=true, isDownload=false, isEdit=true, isDelete=true }) {
     return (
         <div className={cx('flex', 'justify-center', 'icon-group')}>
             {/* <Tippy content='Xem'> */}
@@ -25,14 +25,18 @@ function TableActions({ data, onView, onDownload, onEdit, onDelete, isView=true,
                 )}
             {/* </Tippy> */}
             {/* <Tippy content='Sửa'> */}
-                <button className={cx('icon-wrapper')} onClick={() => onEdit?.(data)}>
-                    <EditIcon width='1.8rem' height='1.8rem' className={cx('mx-3', 'edit-icon', 'cursor-pointer')} />
-                </button>
+                {isEdit && (
+                    <button className={cx('icon-wrapper')} onClick={() => onEdit?.(data)}>
+                        <EditIcon width='1.8rem' height='1.8rem' className={cx('mx-3', 'edit-icon', 'cursor-pointer')} />
+                    </button>
+                )}
             {/* </Tippy> */}
             {/* <Tippy content='Xóa'> */}
-                <button className={cx('icon-wrapper')} onClick={() => onDelete?.(data)}>
-                    <TrashIcon width='1.8rem' height='1.8rem' className={cx('mx-3', 'trash-icon', 'cursor-pointer')} />
-                </button>
+                {isDelete && (
+                    <button className={cx('icon-wrapper')} onClick={() => onDelete?.(data)}>
+                        <TrashIcon width='1.8rem' height='1.8rem' className={cx('mx-3', 'trash-icon', 'cursor-pointer')} />
+                    </button>
+                )}
             {/* </Tippy> */}
         </div>
     );

@@ -51,7 +51,7 @@ function TableModal({ data, isOpen, onClose, onChangeQR }) {
                             to={data?.table_url}
                             target='_blank'
                         >
-                            {data?.table_url.replace('http://172.20.10.2:5173', '')}
+                            {data?.table_url.replace(`${import.meta.env.VITE_API_URL}`, '')}
                         </Link>{' '}
                     </div>
                     <TableQRCode

@@ -52,12 +52,20 @@ function Cart () {
             )}
 
             {totalQuantity >= 1 && (
-                <footer className={cx('footer', 'bottom-0', 'w-full', 'h-18', 'flex', 'items-center', 'justify-between', 'px-4', 'gap-8')}>
-                    <div className={cx('total-price', 'w-3/7', 'h-full', 'bg-amber-200', 'rounded-xl', 'flex', 'items-center', 'justify-center')}>
-                        Tổng: {formatCurrency(totalPrice)}
+                <footer className={cx('footer', 'bottom-0', 'bg-white', 'py-4')}>
+                    <div className={cx('order-note', 'px-4')}>
+                        <textarea
+                            className={cx('w-full', 'h-40', 'bg-white', 'p-2', 'border', 'border-gray-300', 'rounded-lg', 'outline-0')}
+                            placeholder="Ghi chú cho đơn hàng (nếu có)"
+                        />
                     </div>
-                    <div className={cx('checkout-btn', 'w-4/7', 'h-full', 'bg-amber-400', 'rounded-xl', 'flex', 'items-center', 'justify-center', 'cursor-pointer')}>
-                        Xác nhận và gọi món
+                    <div className={cx('w-full', 'h-18', 'flex', 'items-center', 'justify-between', 'px-4', 'gap-8')}>
+                        <div className={cx('total-price', 'w-3/7', 'h-full', 'bg-amber-200', 'rounded-xl', 'flex', 'items-center', 'justify-center')}>
+                            Tổng: {formatCurrency(totalPrice)}
+                        </div>
+                        <div className={cx('checkout-btn', 'w-4/7', 'h-full', 'bg-amber-400', 'rounded-xl', 'flex', 'items-center', 'justify-center', 'cursor-pointer')}>
+                            Xác nhận và gọi món
+                        </div>
                     </div>
                 </footer>
             )}

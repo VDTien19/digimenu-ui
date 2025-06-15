@@ -6,6 +6,7 @@ import './App.css';
 import { AdminLayout, ClientLayout, ServiceLayout } from './layouts';
 import ProtectedRoute, { publicRoutes, privateRoutes } from './routes';
 import { SlugProvider } from '~/contexts/SlugContext';
+import GuestRoute from '~/routes/GuestRoute';
 
 function App() {
     return (
@@ -42,11 +43,32 @@ function App() {
                         const Page = route.component;
 
                         let Layout = ClientLayout;
-
                         if (route.layout) {
                             Layout = route.layout;
                         } else if (route.layout === null) {
                             Layout = Fragment;
+                        }
+
+                        const PageElement = (
+                            <Layout>
+                                <Page />
+                            </Layout>
+                        );
+
+                        if (route.guestOnly) {
+                            return (
+                                <Route
+                                    key={index}
+                                    path={route.path}
+                                    element={
+                                        <SlugProvider>
+                                            <GuestRoute>
+                                                {PageElement}
+                                            </GuestRoute>
+                                        </SlugProvider>
+                                    }
+                                />
+                            );
                         }
 
                         return (
@@ -54,11 +76,7 @@ function App() {
                                 key={index}
                                 path={route.path}
                                 element={
-                                    <SlugProvider>
-                                        <Layout>
-                                            <Page />
-                                        </Layout>
-                                    </SlugProvider>
+                                    <SlugProvider>{PageElement}</SlugProvider>
                                 }
                             />
                         );
@@ -80,13 +98,13 @@ function App() {
                                 key={index}
                                 path={route.path}
                                 element={
-                                    <ProtectedRoute>
-                                        <SlugProvider>
+                                    <SlugProvider>
+                                        <ProtectedRoute roleRequired={route.roleRequired}>
                                             <Layout>
                                                 <Page />
                                             </Layout>
-                                        </SlugProvider>
-                                    </ProtectedRoute>
+                                        </ProtectedRoute>
+                                    </SlugProvider>
                                 }
                             />
                         );

@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { useSelector } from 'react-redux';
 
@@ -18,19 +18,22 @@ function Header() {
 
     const { slug } = useSlug();
     const { tableName } = useParams();
+    const [searchParams] = useSearchParams();
+    const encode = searchParams.get("encode");
 
-    const toMenuUrl = `/${slug}?tableName=${tableName}`;
+    const toMenuUrl = `/${slug}?tableName=${tableName}&encode=${encode}`;
     const toHomeUrl = `/${slug}`;
     const toCartUrl = `/${slug}/cart/${tableName}`;
 
     const location = useLocation();
     const isMenuPage = location.pathname.includes('/menu/');
+    const isStatusPage = location.pathname.includes('/status/');
     const isInvoicePage = location.pathname.includes('/invoice');
 
     return (
         <div className={cx('wrapper')}>
             <div className={cx('flex', 'items-center')}>
-                <Link to={isMenuPage ? toMenuUrl : toHomeUrl}>
+                <Link to={(isMenuPage || isStatusPage) ? toMenuUrl : toHomeUrl}>
                     <div
                         className={cx(
                             'home-icon',

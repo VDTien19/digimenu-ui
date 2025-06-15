@@ -18,6 +18,8 @@ import noResultSearch_1 from '~/assets/images/no_result_search_1.png';
 import noResultSearch_2 from '~/assets/images/no_result_search_2.png';
 import uploadImage from '~/assets/images/upload-image.webp';
 import searchNotFound from '~/assets/images/search_not_found.svg';
+import loginImg from '~/assets/images/login.svg';
+import registerImg from '~/assets/images/register.svg';
 
 const images = {
     noImage,
@@ -39,7 +41,9 @@ const images = {
     noResultSearch_1,
     noResultSearch_2,
     uploadImage,
-    searchNotFound
+    searchNotFound,
+    loginImg,
+    registerImg,
 };
 
 export default images;

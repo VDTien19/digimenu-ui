@@ -3,7 +3,6 @@ import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
-import * as httpRequest from '~/utils/httpRequest';
 import styles from './Menu.module.scss';
 import CategoryList from '~/components/CategoryList';
 import ProductList from '~/components/ProductList';
@@ -11,6 +10,7 @@ import Loading from '~/components/Loading';
 import { useProduct } from '~/contexts/ProductContext';
 import { useSearch } from '~/contexts/SearchContext';
 import { fetchTable } from '~/store/tableSlice';
+import { getMenuItems } from '~/api/menuItemApi';
 
 const cx = classNames.bind(styles);
 
@@ -21,6 +21,7 @@ function useQuery() {
 function Menu() {
     const [data, setData] = useState([]);
     const [isValidTable, setIsValidTable] = useState(false);
+    const [productList, setProductList] = useState([]);
     // const [loading, setLoading] = useState(false);
 
     const { products, loading } = useProduct();
@@ -46,27 +47,34 @@ function Menu() {
     }, [setSearchValue]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchProductList = async () => {
             try {
-                const response = await httpRequest.get(`categories`);
-                setData(response);
+                const response = await getMenuItems();
+                const filterData = response.data.filter(item => item.status === "visible");
+                setProductList(filterData);
+                // console.log("Fetched products:", filterData);
             } catch (error) {
-                console.error('Error fetching categories:', error);
-            } finally {
-                // setLoading(false);
+                console.error('Failed to fetch products:', error);
             }
-        };
-        fetchData();
-    }, []);
+        }
+        fetchProductList();
+    }, [])
+
+    useEffect(() => {
+        setData(products);
+    }, [setData, products]);
 
     // Filter products based on search value
     const filteredProducts = searchValue
-        ? products.filter((product) =>
-              product.name.toLowerCase().includes(searchValue.toLowerCase()),
-          )
-        : [];
+        ? productList.filter((item) =>
+            item.status === "visible" &&
+            (item.name + item.description)
+                .toLowerCase()
+                .includes(searchValue.toLowerCase())
+            )
+        : productList.filter((item) => item.status === "visible");
 
-    // console.log("Products:", products);
+    // console.log("Products:", productList);
     // console.log("Filtered Products:", filteredProducts);
 
     if (loading) {

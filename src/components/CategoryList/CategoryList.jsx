@@ -29,7 +29,7 @@ function CategoryList({ categories }) {
     return (
         <div className={cx('wrapper')}>
             {categories.map((category) => (
-                <div key={category._id} ref={(el) => (categoryRefs.current[category._id] = el)}>
+                <div key={category.id} ref={(el) => (categoryRefs.current[category.id] = el)}>
                     <CategoryItem title={category.name} products={category.products} />
                 </div>
             ))}

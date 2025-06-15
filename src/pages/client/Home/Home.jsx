@@ -83,7 +83,7 @@ function Home() {
                 </Link>
             </header>
             <div className={cx('banner', 'w-full', 'mb-4')}>
-                <Image src={resData?.banner} alt='banner' className={cx('banner-img', 'w-full', 'h-full', 'object-cover', 'rounded-2xl')} />
+                <Image src={resData?.banner_url} alt='banner' className={cx('banner-img', 'w-full', 'h-full', 'object-cover', 'rounded-2xl')} />
             </div>
             <div className={cx('great', 'w-full', 'text-center', 'flex', 'items-center', 'justify-center')}>
                 <Image src={images.hello} className={cx('hello-img', 'object-cover')} />

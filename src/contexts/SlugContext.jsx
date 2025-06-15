@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import * as httpRequest from '~/utils/httpRequest';
+import { getRestaurantBySlug } from '~/api/restaurantApi';
 
 const SlugContext = createContext();
 
@@ -19,7 +20,7 @@ function SlugProvider({ children }) {
         const fetchData = async () => {
             try {
                 if(slug) {
-                    const response = await httpRequest.get(`/restaurants?slug=${slug}`);
+                    const response = await getRestaurantBySlug({ slug });
                     setResData(response.length === 1 ? response[0] : null);
                     setLoading(false);
                 }

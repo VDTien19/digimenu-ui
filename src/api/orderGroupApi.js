@@ -11,18 +11,27 @@ export const getOrderGroups = async () => {
 
 export const updateOrderGroup = async (id, orderGroup) => {
     try {
-        const response = await httpRequest.put(`/order-groups/${id}`, orderGroup);
+        const response = await httpRequest.put(`/order-groups/${id}/pay`, orderGroup);
         return response;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to update order group' };
     }
 }
 
-// export const getOrderGroupById = async (id) => {
-//     try {
-//         const response = await httpRequest.get(`/order-groups/${id}`);
-//         return response;
-//     } catch (error) {
-//         throw error.response ? error.response.data : { message: '>>> Fail to get order group by id' };
-//     }
-// }
+export const getOrderGroupById = async (id) => {
+    try {
+        const response = await httpRequest.get(`/order-groups/${id}`);
+        return response;
+    } catch (error) {
+        throw error.response ? error.response.data : { message: '>>> Fail to get order group by id' };
+    }
+}
+
+export const getOrderGroupByTable = async (name) => {
+    try {
+        const response = await httpRequest.get(`/order-groups/table/${name}`);
+        return response;
+    } catch (error) {
+        throw error.response ? error.response.data : { message: '>>> Fail to get order group by table name' };
+    }
+}

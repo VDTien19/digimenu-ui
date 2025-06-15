@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import * as httpRequest from '~/utils/httpRequest';
+import { getMenuByCategory } from '~/api/menuItemApi';
 
 const ProductContext = createContext();
 
@@ -11,8 +11,8 @@ export const ProductProvider = ({ children }) => {
         setLoading(true);
         const fetchProducts = async () => {
             try {
-                const response = await httpRequest.get('menu_items');
-                setProducts(response);
+                const response = await getMenuByCategory();
+                setProducts(response.data);
                 // console.log("Response data:", response.data);
             } catch (error) {
                 console.error('Failed to fetch products:', error);

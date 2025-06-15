@@ -52,7 +52,7 @@ function CartItem({ item }) {
                 className={cx('image', 'h-full', 'w-24', 'rounded-xl', 'mr-4')}
             >
                 <Image
-                    src={item.image}
+                    src={item.image_url}
                     className={cx(
                         'w-full',
                         'h-full',

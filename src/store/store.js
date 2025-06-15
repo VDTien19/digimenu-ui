@@ -4,6 +4,7 @@ import categoryReducer from './categorySlice';
 import productReducer from './productSlice';
 import tableReducer from './tableSlice';
 import { dashboardApi } from './dashboardSlice';
+import orderReducer from './orderSlice';
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
         product: productReducer,
         table: tableReducer,
         [dashboardApi.reducerPath]: dashboardApi.reducer,
+        order: orderReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(dashboardApi.middleware),

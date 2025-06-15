@@ -1,6 +1,7 @@
 const routes = {
     // Home page: digital menu ordering system introduction
     home: '/',
+    login: '/:slug/login',
 
     // Client routes
     client_home: '/:slug',  // query theo tên bàn
@@ -19,7 +20,7 @@ const routes = {
     admin_menu: '/:slug/admin/menu',
     admin_staff: '/:slug/admin/staff',
     admin_table: '/:slug/admin/table',
-    admin_login: '/:slug/admin/login',
+    // admin_login: '/:slug/admin/login',
     admin_settings: '/:slug/admin/settings',
     admin_payment_method: '/:slug/admin/payment-method',
 
@@ -30,7 +31,7 @@ const routes = {
     service_table: '/:slug/service/table',
     service_order: '/:slug/service/order',
     service_payment: '/:slug/service/payment',
-    service_login: '/:slug/service/login',
+    // service_login: '/:slug/service/login',
 };
 
 export default routes;

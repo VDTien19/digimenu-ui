@@ -27,6 +27,15 @@ export const getMenuItemById = async (id) => {
     }
 }
 
+export const getMenuByCategory = async () => {
+    try {
+        const response = await httpRequest.get('/menu-items/grouped-by-category');
+        return response;
+    } catch (error) {
+        throw error.response ? error.response.data : { message: '>>> Fail to get menu by category' };
+    }
+}
+
 export const getMenuItemsByCategoryId = async (categoryId) => {
     try {
         const response = await httpRequest.get(`/menu-items/category/${categoryId}`);

@@ -10,19 +10,22 @@ import GlobalStyles from '~/components/GlobalStyles';
 import { CategoryProvider } from '~/contexts/CategoryContext';
 import { ProductProvider } from '~/contexts/ProductContext';
 import { SearchProvider } from '~/contexts/SearchContext';
+import { AuthProvider } from '~/contexts/AuthContext';
 
 createRoot(document.getElementById('root')).render(
     // <StrictMode>
         <GlobalStyles>
-            <Provider store={store}>
-                <CategoryProvider>
-                    <ProductProvider>
-                        <SearchProvider>
-                            <App />
-                        </SearchProvider>
-                    </ProductProvider>
-                </CategoryProvider>
-            </Provider>
+            <AuthProvider>
+                <Provider store={store}>
+                    <CategoryProvider>
+                        <ProductProvider>
+                            <SearchProvider>
+                                <App />
+                            </SearchProvider>
+                        </ProductProvider>
+                    </CategoryProvider>
+                </Provider>
+            </AuthProvider>
         </GlobalStyles>
     // </StrictMode>,
 );

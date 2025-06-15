@@ -1,27 +1,15 @@
 import { Navigate } from "react-router-dom";
+import { useSlug } from '~/contexts/SlugContext';
+import { useAuth } from '~/contexts/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
+    const { isAuthenticated, loading } = useAuth();
+    const { slug } = useSlug();
 
-    // let toUrl;
+    if (loading) return null;
 
-    // const slug = 'res-ktn';
-
-    // const path = window.location.pathname;
-    // const isAdmin = path.includes('/admin');
-    // const isService = path.includes('/service');
-
-    // if (isAdmin) {
-    //     toUrl = `/${slug}/admin/login`;
-    // } else if (isService) {
-    //     toUrl = `/${slug}/service/login`;
-    // }
-
-    // console.log('toUrl:', toUrl);
-    
-    // const token = localStorage.getItem("token");
-
-    // return token ? children : <Navigate to={toUrl} />;
-    return children;
+    const loginUrl = `/${slug}/login`;
+    return isAuthenticated ? children : <Navigate to={loginUrl} replace />;
 };
 
 export default ProtectedRoute;

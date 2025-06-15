@@ -18,10 +18,10 @@ import { useAuth } from '~/contexts/AuthContext';
 const cx = classNames.bind(styles);
 
 function Login() {
-    const [loginData, setLoginData] = useState({ username: '', password: '' });
+    const [loginData, setLoginData] = useState({ email: '', password: '' });
     const [registerData, setRegisterData] = useState({
-        username: '',
         email: '',
+        username: '',
         password: '',
     });
     const [error, setError] = useState('');
@@ -54,7 +54,7 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-        const user = await login(loginData.username, loginData.password);
+        const user = await login(loginData.email, loginData.password);
         if (!user) {
             setError('Sai tài khoản hoặc mật khẩu');
             return;
@@ -101,12 +101,12 @@ function Login() {
                             </div>
                             <input
                                 type="text"
-                                placeholder="Username"
-                                value={loginData.username}
+                                placeholder="Email"
+                                value={loginData.email}
                                 onChange={(e) =>
                                     setLoginData({
                                         ...loginData,
-                                        username: e.target.value,
+                                        email: e.target.value,
                                     })
                                 }
                             />

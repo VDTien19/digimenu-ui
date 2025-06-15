@@ -39,7 +39,7 @@ function Orders() {
                 />
             </div>
             <div>
-                <OrderTable orders={orderPending} />
+                <OrderTable orders={data} />
             </div>
         </div>
     );

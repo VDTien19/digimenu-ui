@@ -8,6 +8,6 @@ import { io } from 'socket.io-client';
 //   reconnectionDelayMax: 5000,
 // });
 
-const socket = io(`${import.meta.env.VITE_API_URL}`)
+const socket = io();
 
 export default socket;

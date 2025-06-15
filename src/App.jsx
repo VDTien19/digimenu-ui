@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster, ToastBar } from 'react-hot-toast';
 
@@ -7,8 +7,14 @@ import { AdminLayout, ClientLayout, ServiceLayout } from './layouts';
 import ProtectedRoute, { publicRoutes, privateRoutes } from './routes';
 import { SlugProvider } from '~/contexts/SlugContext';
 import GuestRoute from '~/routes/GuestRoute';
+import socket from '~/socket';
 
 function App() {
+    useEffect(() => {
+        socket.connect(); // Kết nối socket khi app khởi động
+        return () => socket.disconnect(); // Ngắt khi app unmount
+    }, []);
+    
     return (
         <Router>
             <Toaster

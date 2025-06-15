@@ -49,10 +49,10 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const login = async (username, password) => {
+    const login = async (email, password) => {
     setLoading(true);
     try {
-        const res = await authServices.login(username, password);
+        const res = await authServices.login(email, password);
         if (res.token) {
             localStorage.setItem('token', res.token);
 

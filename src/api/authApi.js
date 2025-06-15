@@ -1,8 +1,8 @@
 import * as httpRequest from '~/utils/httpRequest';
 
-export const login = async (username, password) => {
+export const login = async (email, password) => {
     try {
-        const response = await httpRequest.post('/auth/login', { username, password });
+        const response = await httpRequest.post('/auth/login', { email, password });
         return response;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to login' };

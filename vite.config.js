@@ -22,5 +22,14 @@ export default defineConfig({
             return `${file}__${name}__${Buffer.from(name).toString('base64').slice(0, 5)}`;
           }
         }
-    }
+    },
+    server: {
+        proxy: {
+        '/socket.io': {
+            target: 'http://localhost:5000',
+            ws: true,
+            changeOrigin: true,
+        },
+        },
+    },
 });

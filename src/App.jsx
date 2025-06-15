@@ -99,7 +99,7 @@ function App() {
                                 path={route.path}
                                 element={
                                     <SlugProvider>
-                                        <ProtectedRoute>
+                                        <ProtectedRoute roleRequired={route.roleRequired}>
                                             <Layout>
                                                 <Page />
                                             </Layout>

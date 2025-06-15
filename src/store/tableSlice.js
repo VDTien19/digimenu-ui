@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as httpRequest from '~/utils/httpRequest';
+import { getTables, getTableByName } from '~/api/tableApi';
 
 export const fetchTable = createAsyncThunk(
     'table/fetchTable',
     async () => {
-        const res = await httpRequest.get('tables');
-        return res;
+        const res = await getTables();
+        return res.data;
     }
 )
 
@@ -33,11 +34,24 @@ export const deleteTable = createAsyncThunk(
     }
 );
 
+export const fetchTableByName = createAsyncThunk(
+    'table/fetchTableByName',
+    async (name, { rejectWithValue }) => {
+        try {
+            const res = await getTableByName(name);
+            return res.data;
+        } catch (err) {
+            return rejectWithValue(err.message || 'Không thể lấy bàn theo tên');
+        }
+    }
+);
+
 // ----- Slice -----
 const tableSlice = createSlice({
     name: 'table',
     initialState: {
         listTables: [],
+        currentTable: null,
         loading: false,
         error: null,
     },
@@ -71,7 +85,12 @@ const tableSlice = createSlice({
                 if (index !== -1) {
                     state.listTables.splice(index, 1);
                 }
-            });
+            })
+            // fetchTableByName
+            .addCase(fetchTableByName.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentTable = action.payload;
+            })
     },
 });
 

@@ -9,8 +9,8 @@ const cx = classNames.bind(styles);
 function ProductList ({ products }) {
     return (
         <div className={cx('wrapper')}>
-            {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
+            {products.map((product, index) => (
+                <ProductCard key={index} product={product} />
             ))}
         </div>
     );

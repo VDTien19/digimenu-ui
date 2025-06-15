@@ -52,6 +52,7 @@ export const searchByPath = async (pathname, searchValue, setters) => {
     for (const item of searchMap) {
         if (lastSegment === item.path) {
             const res = await httpRequest.get(`${item.endpoint}?${item.queryParam}=${encodedKeyword}`);
+            console.log('encodedKeyword:', encodedKeyword);
             item.setter(res);
             break;
         }

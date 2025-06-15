@@ -1,30 +1,93 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import styles from './Cart.module.scss';
 import CartList from '~/components/CartList';
-import images from '~/assets/images'
+import images from '~/assets/images';
 import Image from '~/components/Images';
 import { TrashIcon } from '~/components/Icons';
 import ConfirmModal from '~/components/ConfirmModal';
 import { formatCurrency } from '~/utils/formatCurrency';
+import { createOrder } from '~/store/orderSlice';
+import { fetchTableByName } from '~/store/tableSlice';
+import { useSlug } from '~/contexts/SlugContext';
+// import { fetchTable } from '~/store/tableSlice';
 
 const cx = classNames.bind(styles);
 
-function Cart () {
-
+function Cart() {
+    const { tableName } = useParams();
     const dispatch = useDispatch();
-    const { totalQuantity, totalPrice, cartItems } = useSelector((state) => state.cart);
     const navigate = useNavigate();
 
-    const [isModalOpen, setIsModalOpen] = useState(false); 
+    const { slug } = useSlug();
+
+    // const { listTables } = useSelector((state) => state.table);
+    const { totalQuantity, totalPrice, cartItems } = useSelector((state) => state.cart);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notes, setNotes] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [dataTable, setDataTable] = useState(null);
+
+    // const tableId = listTables.find(table => table.name == tableName)?._id;
+
+    // Load danh sách bàn khi vào trang
+    // useEffect(() => {
+    //     if (!listTables || listTables.length === 0) {
+    //         dispatch(fetchTable());
+    //     }
+    // }, [dispatch, listTables]);
 
     const handleConfirm = () => {
         dispatch({ type: 'cart/clearCart' });
         setIsModalOpen(false);
-    }
+    };
+
+    // Lấy ID bàn từ tên bàn
+    useEffect(() => {
+        if (!tableName) return;
+        const fetchTableCurrent = async () => {
+            try {
+                const table = await dispatch(fetchTableByName(tableName)).unwrap();
+                setDataTable(table);
+                console.log("Table ID:", table._id);
+            } catch (error) {
+                alert(error.message || "Không tìm thấy bàn.");
+            }
+        };
+        fetchTableCurrent();
+    }, [tableName, setDataTable, dispatch]);
+
+    const handleOrder = async () => {
+        if (!dataTable) {
+            alert("Không tìm thấy bàn. Vui lòng kiểm tra lại.");
+            return;
+        }
+
+        const orderData = {
+            table_id: dataTable._id,
+            notes,
+            items: cartItems.map(item => ({
+                item_id: item.id,
+                quantity: item.quantity
+            }))
+        };
+
+        try {
+            setLoading(true);
+            await dispatch(createOrder(orderData)).unwrap();
+            dispatch({ type: 'cart/clearCart' });
+            alert("Gọi món thành công!");
+            navigate(`/${slug}/status/${tableName}?encode=${dataTable?.encode}`);
+        } catch (error) {
+            alert(error.message || "Gọi món thất bại.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className={cx('wrapper')}>
@@ -32,7 +95,9 @@ function Cart () {
                 <div onClick={() => navigate(-1)} className={cx('icon-back', 'w-12', 'h-10', 'rotate-180', 'flex', 'items-center', 'justify-center', 'ml-4', 'rounded', 'cursor-pointer')}>
                     <Image className={cx('icon-image', 'w-4', 'h-4')} src={images.arrow} />
                 </div>
-                <h2 className={cx('title', 'w-full', 'h-full', 'font-medium', 'flex', 'items-center', 'justify-center')}>Các món đã chọn ({totalQuantity})</h2>
+                <h2 className={cx('title', 'w-full', 'h-full', 'font-medium', 'flex', 'items-center', 'justify-center')}>
+                    Các món đã chọn ({totalQuantity})
+                </h2>
                 <div className={cx('mr-4', 'cursor-pointer')} onClick={() => setIsModalOpen(true)}>
                     <TrashIcon />
                 </div>
@@ -42,19 +107,19 @@ function Cart () {
                 <CartList cartItems={cartItems} />
             </div>
 
-            {totalQuantity !== 0 && (
-                <ConfirmModal 
-                    isOpen={isModalOpen} 
-                    onClose={() => setIsModalOpen(false)}
-                    message="Bạn có chắc chắn muốn xóa tất cả món ăn trong giỏ hàng không?"
-                    onConfirm={handleConfirm}
-                />
-            )}
+            <ConfirmModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                message="Bạn có chắc chắn muốn xóa tất cả món ăn trong giỏ hàng không?"
+                onConfirm={handleConfirm}
+            />
 
             {totalQuantity >= 1 && (
                 <footer className={cx('footer', 'bottom-0', 'bg-white', 'py-4')}>
                     <div className={cx('order-note', 'px-4')}>
                         <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
                             className={cx('w-full', 'h-40', 'bg-white', 'p-2', 'border', 'border-gray-300', 'rounded-lg', 'outline-0')}
                             placeholder="Ghi chú cho đơn hàng (nếu có)"
                         />
@@ -63,8 +128,11 @@ function Cart () {
                         <div className={cx('total-price', 'w-3/7', 'h-full', 'bg-amber-200', 'rounded-xl', 'flex', 'items-center', 'justify-center')}>
                             Tổng: {formatCurrency(totalPrice)}
                         </div>
-                        <div className={cx('checkout-btn', 'w-4/7', 'h-full', 'bg-amber-400', 'rounded-xl', 'flex', 'items-center', 'justify-center', 'cursor-pointer')}>
-                            Xác nhận và gọi món
+                        <div
+                            className={cx('checkout-btn', 'w-4/7', 'h-full', 'bg-amber-400', 'rounded-xl', 'flex', 'items-center', 'justify-center', 'cursor-pointer')}
+                            onClick={loading ? null : handleOrder}
+                        >
+                            {loading ? "Đang gửi..." : "Xác nhận và gọi món"}
                         </div>
                     </div>
                 </footer>

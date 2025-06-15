@@ -24,11 +24,11 @@ function ProductCard({ product }) {
 
     const handleAddToCart = () => {
         dispatch(addToCart({
-            id: product._id,
+            id: product.id,
             title: product.name,
             price: product.price,
             quantity: quantity,
-            image: product.image
+            image_url: product.image_url
         }));
         toast(`Thêm x${quantity} ${product.name} vào giỏ hàng.`);
         setQuantity(1);
@@ -39,8 +39,8 @@ function ProductCard({ product }) {
             <div className={cx('image', 'flex', 'items-center', 'mr-6')}>
                 <Image
                     className={cx('image-url')}
-                    src="https://timtour.vn/files/images/AnGiNgon/pizza-italy-1.jpg"
-                    alt="Product Image"
+                    src={product.image_url}
+                    alt={product.name}
                 />
             </div>
             <div className={cx('content', 'flex', 'flex-col')}>

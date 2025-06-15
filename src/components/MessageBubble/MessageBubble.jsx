@@ -1,6 +1,5 @@
 import {} from 'react';
 import classNames from 'classnames/bind';
-import { Link } from 'react-router-dom';
 
 import styles from './MessageBubble.module.scss';
 
@@ -24,7 +23,7 @@ function MessageBubble({ isCustomer = true, message }) {
                 }`}
             >
                 {message}
-                {isCustomer && (<Link><p className={cx('text-white', 'underline', 'text-xl')}>Xem các món đã gọi.</p></Link>)}
+                {isCustomer && (<p className={cx('text-white', 'underline', 'text-xl', 'cursor-pointer')}>Xem các món đã gọi.</p>)}
             </div>
         </div>
     );

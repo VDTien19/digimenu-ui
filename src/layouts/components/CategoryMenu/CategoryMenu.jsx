@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
-import * as httpRequest from '~/utils/httpRequest';
 
 import styles from './CategoryMenu.module.scss';
 import { BarIcon } from '~/components/Icons';
 import { useCategory } from '~/contexts/CategoryContext';
+import { getMenuByCategory } from '~/api/menuItemApi';
+import { useProduct } from '~/contexts/ProductContext';
 
 const cx = classNames.bind(styles);
 
@@ -13,22 +14,27 @@ function CategoryMenu () {
     const [data, setData] = useState([]);
 
     const { setActiveCategory } = useCategory();
+    const { products } = useProduct();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await httpRequest.get(`categories`);
-                setData(response);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        }
-        fetchData();
-    }, [])
+        // const fetchData = async () => {
+        //     try {
+        //         const response = await getMenuByCategory();
+        //         setData(response.data);
+        //         console.log('Cate list:', response.data);
+        //     } catch (error) {
+        //         console.error('Error fetching categories:', error);
+        //     }
+        // }
+        // fetchData();
+        setData(products);
+        // console.log('Cate list:', products);
+    }, [setData, products]);
 
     const handleMenuItemClick = (index, id) => {
         setActive(index);
         setActiveCategory(id);
+        console.log('Selected category ID:', id);
     };
 
     return (
@@ -38,7 +44,7 @@ function CategoryMenu () {
                     <li
                         key={index}
                         className={cx('menu-item', { active: active === index })}
-                        onClick={() => handleMenuItemClick(index, category._id)}
+                        onClick={() => handleMenuItemClick(index, category.id)}
                     >
                         {category.name}
                     </li>

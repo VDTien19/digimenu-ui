@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
 import styles from './Menu.module.scss';
@@ -9,6 +9,7 @@ import ProductList from '~/components/ProductList';
 import Loading from '~/components/Loading';
 import { useProduct } from '~/contexts/ProductContext';
 import { useSearch } from '~/contexts/SearchContext';
+import { useSlug } from '~/contexts/SlugContext';
 import { fetchTable } from '~/store/tableSlice';
 import { getMenuItems } from '~/api/menuItemApi';
 
@@ -26,6 +27,7 @@ function Menu() {
 
     const { products, loading } = useProduct();
     const { searchValue, setSearchValue } = useSearch();
+    const { slug } = useSlug();
 
     const dispatch = useDispatch();
     const { listTables } = useSelector((state) => state.table);
@@ -35,6 +37,7 @@ function Menu() {
 
     const query = useQuery();
     const encode = query.get('encode');
+    const { tableName } = useParams();
 
     useEffect(() => {
         const isValidTable = encode && listTables?.some((item) => item.encode === encode);
@@ -100,6 +103,11 @@ function Menu() {
             ) : (
                 <CategoryList categories={data} />
             )}
+            <button className={cx('fixed', 'bottom-10', 'right-10', 'p-4', 'border-2', 'bg-amber-200', 'rounded-full')}>
+                <Link to={`/${slug}/status/${tableName}?encode=${encode}`}>
+                    chat
+                </Link>
+            </button>
         </div>
     );
 }

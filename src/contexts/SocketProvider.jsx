@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from 'react';
 import socket from '~/socket';
 import { toast } from 'react-toastify';
-import { getTableById } from '~/api/tableApi'; // Giả định API lấy thông tin bàn
+import { getTableById } from '~/api/tableApi';
 
 export const SocketContext = createContext();
 
@@ -12,33 +12,40 @@ export function SocketProvider({ children }) {
         const handleNewOrder = async (orderData) => {
             console.log('🆕 [new_order]:', orderData);
 
-            // Lấy thông tin bàn nếu table_id là ID
-            let tableInfo = orderData?.data.table_id._id;
-            if (typeof orderData.table_id === 'string') {
+            // Lấy thông tin bàn từ data.table_id
+            let tableInfo = orderData.data?.table_id;
+            if (typeof orderData.data?.table_id === 'string') {
                 try {
-                    const response = await getTableById(orderData.table_id);
-                    tableInfo = response.data; // Giả định: { _id: "123", name: "Bàn 1" }
+                    const response = await getTableById(orderData.data.table_id);
+                    tableInfo = response.data;
                 } catch (error) {
                     console.error('Lỗi lấy thông tin bàn:', error);
-                    tableInfo = { _id: orderData.table_id, name: '-' };
+                    tableInfo = { _id: orderData.data.table_id, name: '-' };
                 }
             }
 
+            // Chuẩn hóa dữ liệu socket để đồng bộ với API
             const normalizedOrder = {
-                ...orderData,
-                status: orderData.status || 'Đang chờ',
-                createdAt: orderData.createdAt && !isNaN(new Date(orderData.createdAt).getTime())
-                    ? orderData.createdAt
-                    : new Date().toISOString(),
-                table_id: tableInfo, // Đảm bảo table_id là object
+                _id: orderData.data?._id, // Lấy _id từ data
+                status: orderData.data?.status || 'Đang chờ',
+                createdAt: orderData.data?.createdAt || orderData.timestamp || new Date().toISOString(),
+                table_id: tableInfo,
+                items: orderData.data?.items || [],
+                notes: orderData.data?.notes || '',
+                order_group_id: orderData.data?.order_group_id,
+                restaurant_id: orderData.data?.restaurant_id,
+                total_cost: orderData.data?.total_cost,
+                updatedAt: orderData.data?.updatedAt,
+                __v: orderData.data?.__v,
+                // Giữ data gốc để debug hoặc backward compatibility
+                data: orderData.data,
             };
 
-            // Trì hoãn setState để tránh lỗi render
             setTimeout(() => {
                 setOrderPending((prev = []) => {
-                    const updatedOrders = [normalizedOrder, ...prev];
-                    console.log('✅ Cập nhật danh sách đơn:', updatedOrders);
-                    toast.success(`Đơn hàng mới: Bàn ${normalizedOrder?.data.table_id.name || '-'}`);
+                    const updatedOrders = [normalizedOrder, ...prev.filter(order => order._id !== normalizedOrder._id)];
+                    // console.log('✅ Cập nhật danh sách đơn:', updatedOrders);
+                    toast.success(`Đơn hàng mới: Bàn ${normalizedOrder.table_id?.name || '-'}`);
                     return updatedOrders;
                 });
             }, 0);
@@ -47,7 +54,7 @@ export function SocketProvider({ children }) {
         socket.on('new_order', handleNewOrder);
 
         return () => {
-            console.log('🧹 Dọn dẹp socket listeners toàn cục');
+            // console.log('🧹 Dọn dẹp socket listeners toàn cục');
             socket.off('new_order', handleNewOrder);
         };
     }, []);

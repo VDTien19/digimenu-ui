@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import classNames from 'classnames/bind';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import styles from './OrderTable.module.scss';
 import DataTable from '~/components/admin/DataTable';
 import TableActions from '~/components/admin/TableActions';
@@ -25,10 +25,11 @@ function OrderTable({ orders = [], onStatusChange }) {
 
     const handleApproveOrder = async (orderId) => {
         try {
+            console.log('🔍 Approving order with ID:', orderId);
             const response = await approveOrder(orderId);
             console.log('✅ Order approved:', response);
             onStatusChange(orderId, 'Đã nhận'); // Cập nhật state
-            toast.success('Phê duyệt đơn hàng thành công!');
+            toast('Phê duyệt đơn hàng thành công!');
             setShowViewModal(false); // Đóng modal nếu mở
         } catch (error) {
             console.error('❌ Approve order failed:', error);
@@ -58,14 +59,15 @@ function OrderTable({ orders = [], onStatusChange }) {
                     value={row.status}
                     onChange={(e) => {
                         const newStatus = e.target.value;
+                        const orderId = row._id || row?.data?._id;
+                        // console.log('🔍 row._id:', row._id);
+                        // console.log('🔍 row?.data?._id:', row?.data?._id);
+                        // console.log('🔍 Order ID used:', orderId);
                         if (newStatus === 'Đã nhận') {
-                            handleApproveOrder(row._id || row?.data?._id); // Gọi API approveOrder
-                            console.log("row._id: ", row._id);
-                            console.log("row?.data?._id: ", row?.data?._id);
+                            handleApproveOrder(orderId); // Gọi API approveOrder
                         } else {
-                            onStatusChange(row._id || row?.data?._id, newStatus);
-                            console.log("row._id: ", row._id);
-                            console.log("row?.data?._id: ", row?.data?._id);
+                            onStatusChange(orderId, newStatus);
+                            // console.log('🔍 Updated status:', newStatus);
                         }
                     }}
                     className={cx('status-select', 'border', 'rounded', 'px-2', 'py-1', 'outline-0', 'cursor-pointer')}
@@ -119,7 +121,7 @@ function OrderTable({ orders = [], onStatusChange }) {
 
     return (
         <div className="space-y-4">
-        <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
                 <div className="text-sm font-medium space-x-4 flex gap-1">
                     <div className="flex items-center px-3 py-1 rounded-3xl font-normal text-black text-lg bg-yellow-400">
                         Đang chờ: <strong className="ml-1">{countByStatus('Đang chờ')}</strong>
@@ -144,8 +146,8 @@ function OrderTable({ orders = [], onStatusChange }) {
                 <ViewOrderModal
                     isOpen={showViewModal}
                     onClose={() => setShowViewModal(false)}
-                    orders={orderData}
-                    onApprove={() => handleApproveOrder(orderData._id)}
+                    orders={orderData || orderData?.data}
+                    onApprove={() => handleApproveOrder(orderData?._id || orderData?.data?._id)}
                 />
             )}
         </div>

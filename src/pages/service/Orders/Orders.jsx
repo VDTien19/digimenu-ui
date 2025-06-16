@@ -14,10 +14,12 @@ function Orders() {
     const [loading, setLoading] = useState(true);
 
     const handleStatusChange = (orderId, newStatus) => {
-        setOrderPending(prev =>
-            prev.map(order =>
-                order._id === orderId ? { ...order, status: newStatus } : order
-            )
+        // console.log('🔍 Status changed - orderId:', orderId, 'newStatus:', newStatus);
+        setOrderPending((prev = []) =>
+            prev.map(order => {
+                const currentId = order._id || order.data?._id;
+                return currentId === orderId ? { ...order, status: newStatus } : order;
+            })
         );
     };
 
@@ -25,7 +27,10 @@ function Orders() {
         const fetchOrders = async () => {
             try {
                 const response = await getOrdersPending();
-                setOrderPending(response.data);
+                // console.log('📊 API orders:', response.data);
+                setOrderPending(prev => [...prev, ...response.data.filter(newOrder => 
+                    !prev.some(order => (order._id || order.data?._id) === (newOrder._id || newOrder.data?._id))
+                )]);
                 setLoading(false);
             } catch (error) {
                 console.error('Lỗi lấy đơn hàng:', error);

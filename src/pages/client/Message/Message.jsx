@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux'; // ✅
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import socket from '~/socket';
 import { createOrder } from '~/store/orderSlice';
 import { clearCart } from '~/store/cartSlice';
+import { useSlug } from '~/contexts/SlugContext';
 import MessageBubble from '~/components/MessageBubble';
 import classNames from 'classnames/bind';
 import styles from './Message.module.scss';
@@ -11,13 +12,20 @@ import styles from './Message.module.scss';
 const cx = classNames.bind(styles);
 
 function Message() {
-    const dispatch = useDispatch(); // ✅
+    const dispatch = useDispatch();
     const location = useLocation();
+    const navigate = useNavigate();
     const { tableName } = useParams();
-    const [messages, setMessages] = useState([]);
+    const { slug } = useSlug();
 
     const { orderData, tableData } = location.state || {};
     const roomName = tableData ? `room_table_${tableData._id}` : '';
+
+    // Khởi tạo messages từ localStorage
+    const [messages, setMessages] = useState(() => {
+        const savedMessages = localStorage.getItem(`messages_${roomName}`);
+        return savedMessages ? JSON.parse(savedMessages) : [];
+    });
 
     useEffect(() => {
         if (!tableData) return;
@@ -32,18 +40,29 @@ function Message() {
 
         socket.on('customer_notification', (data) => {
             console.log('🔥 [customer_notification]:', data);
-            setMessages((prev) => [...prev, data]);
-            console.log(data.target)
+            setMessages((prev) => {
+                const updatedMessages = [...prev, data];
+                // Lưu messages vào localStorage
+                localStorage.setItem(`messages_${roomName}`, JSON.stringify(updatedMessages));
+                return updatedMessages;
+            });
+            console.log('Target:', data.target);
         });
 
-        // ✅ Gọi API order sau khi join room
         const callOrderApi = async () => {
             try {
                 if (orderData) {
                     const res = await dispatch(createOrder(orderData)).unwrap();
                     console.log('✅ Order created:', res);
-                    if(res) {
+                    console.log('✅ Success:', res.success);
+                    if (res.success === true) {
                         dispatch(clearCart());
+                        console.log('Đã xoá');
+                        // Xóa orderData khỏi state, giữ tableData
+                        navigate(`/${slug}/status/${tableName}?encode=${tableData.encode}`, {
+                            state: { tableData }, // Không cần orderData: null
+                            replace: true, // Thay thế history entry
+                        });
                     }
                 }
             } catch (err) {
@@ -58,22 +77,13 @@ function Message() {
             socket.off('customer_notification');
             socket.off('connect');
         };
-    }, [tableName]);
+    }, [tableName, dispatch, navigate, orderData, tableData, roomName, slug]);
 
     return (
         <div className={cx('wrapper')}>
-            {/* {messages.map((msg, index) => (
-                <MessageBubble
-                    key={index}
-                    isCustomer={msg.target === 'customer'}
-                    message={msg.message}
-                    orderData={msg.orderData}
-                />
-            ))} */}
             {messages.map((msg, index) => (
                 <MessageBubble
                     key={index}
-                    // isCustomer={msg.target === 'customer'}
                     type={msg.type}
                     message={msg.message}
                     orderData={msg.data}

@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Orders.module.scss';
 import AdminContentHeader from '~/components/admin/AdminContentHeader';
 import OrderTable from '~/components/admin/OrderTable';
 import { getOrdersPending } from '~/api/orderApi';
 import { LoadingIcon } from '~/components/Icons';
-import socket from '~/socket';
+import { SocketContext } from '~/contexts/SocketProvider';
 
 const cx = classNames.bind(styles);
 
 function Orders() {
-    const [orderPending, setOrderPending] = useState([]);
+    const { orderPending, setOrderPending } = useContext(SocketContext);
     const [loading, setLoading] = useState(true);
 
     const handleStatusChange = (orderId, newStatus) => {
@@ -34,31 +34,7 @@ function Orders() {
         };
 
         fetchOrders();
-
-        const handleNewOrder = (orderData) => {
-            console.log('🆕 [new_order]:', orderData);
-            setOrderPending((prev = []) => {
-                // Chuẩn hóa createdAt, mặc định là ngày hiện tại nếu không hợp lệ
-                const normalizedOrder = {
-                    ...orderData,
-                    status: orderData.status || 'Đang chờ',
-                    createdAt: orderData.createdAt && !isNaN(new Date(orderData.createdAt).getTime())
-                        ? orderData.createdAt
-                        : new Date().toISOString(),
-                };
-                const updatedOrders = [normalizedOrder, ...prev];
-                console.log('✅ Cập nhật danh sách đơn:', updatedOrders);
-                return updatedOrders;
-            });
-        };
-
-        socket.on('new_order', handleNewOrder);
-
-        return () => {
-            console.log('🧹 Dọn dẹp socket listeners');
-            socket.off('new_order', handleNewOrder);
-        };
-    }, []);
+    }, [setOrderPending]);
 
     return (
         <div className={cx('wrapper', 'p-4')}>

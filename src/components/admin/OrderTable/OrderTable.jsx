@@ -2,10 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import classNames from 'classnames/bind';
+import { toast } from 'react-toastify';
 import styles from './OrderTable.module.scss';
 import DataTable from '~/components/admin/DataTable';
 import TableActions from '~/components/admin/TableActions';
 import ViewOrderModal from '~/components/admin/ViewOrderModal';
+import { approveOrder } from '~/api/orderApi';
 
 const cx = classNames.bind(styles);
 
@@ -21,6 +23,19 @@ function OrderTable({ orders = [], onStatusChange }) {
 
     const countByStatus = (status) => orders.filter(order => order.status === status).length;
 
+    const handleApproveOrder = async (orderId) => {
+        try {
+            const response = await approveOrder(orderId);
+            console.log('✅ Order approved:', response);
+            onStatusChange(orderId, 'Đã nhận'); // Cập nhật state
+            toast.success('Phê duyệt đơn hàng thành công!');
+            setShowViewModal(false); // Đóng modal nếu mở
+        } catch (error) {
+            console.error('❌ Approve order failed:', error);
+            toast.error('Phê duyệt đơn hàng thất bại. Vui lòng thử lại.');
+        }
+    };
+
     const columns = [
         {
             key: 'index',
@@ -32,7 +47,7 @@ function OrderTable({ orders = [], onStatusChange }) {
         {
             key: 'table',
             label: 'Bàn',
-            render: (_, row) => `Bàn ${row.table_id?.name || '-'}`,
+            render: (_, row) => `Bàn ${row.table_id?.name || row?.data?.table_id?.name || '-'}`,
             headClass: 'text-start pl-8',
         },
         {
@@ -41,7 +56,18 @@ function OrderTable({ orders = [], onStatusChange }) {
             render: (_, row) => (
                 <select
                     value={row.status}
-                    onChange={(e) => onStatusChange(row._id, e.target.value)}
+                    onChange={(e) => {
+                        const newStatus = e.target.value;
+                        if (newStatus === 'Đã nhận') {
+                            handleApproveOrder(row._id || row?.data?._id); // Gọi API approveOrder
+                            console.log("row._id: ", row._id);
+                            console.log("row?.data?._id: ", row?.data?._id);
+                        } else {
+                            onStatusChange(row._id || row?.data?._id, newStatus);
+                            console.log("row._id: ", row._id);
+                            console.log("row?.data?._id: ", row?.data?._id);
+                        }
+                    }}
                     className={cx('status-select', 'border', 'rounded', 'px-2', 'py-1', 'outline-0', 'cursor-pointer')}
                 >
                     <option value="Đang chờ">Đang chờ</option>
@@ -54,7 +80,6 @@ function OrderTable({ orders = [], onStatusChange }) {
             key: 'createdAt',
             label: 'Thời gian tạo',
             render: (value) => {
-                // Kiểm tra giá trị createdAt
                 if (!value || isNaN(new Date(value).getTime())) {
                     return '-';
                 }
@@ -94,7 +119,7 @@ function OrderTable({ orders = [], onStatusChange }) {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
                 <div className="text-sm font-medium space-x-4 flex gap-1">
                     <div className="flex items-center px-3 py-1 rounded-3xl font-normal text-black text-lg bg-yellow-400">
                         Đang chờ: <strong className="ml-1">{countByStatus('Đang chờ')}</strong>
@@ -120,7 +145,7 @@ function OrderTable({ orders = [], onStatusChange }) {
                     isOpen={showViewModal}
                     onClose={() => setShowViewModal(false)}
                     orders={orderData}
-                    onApprove={() => onStatusChange(orderData._id, 'Đã nhận')}
+                    onApprove={() => handleApproveOrder(orderData._id)}
                 />
             )}
         </div>

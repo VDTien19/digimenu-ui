@@ -11,20 +11,23 @@ import { CategoryProvider } from '~/contexts/CategoryContext';
 import { ProductProvider } from '~/contexts/ProductContext';
 import { SearchProvider } from '~/contexts/SearchContext';
 import { AuthProvider } from '~/contexts/AuthContext';
+import { SocketProvider } from '~/contexts/SocketProvider';
 
 createRoot(document.getElementById('root')).render(
     // <StrictMode>
         <GlobalStyles>
             <AuthProvider>
-                <Provider store={store}>
-                    <CategoryProvider>
-                        <ProductProvider>
-                            <SearchProvider>
-                                <App />
-                            </SearchProvider>
-                        </ProductProvider>
-                    </CategoryProvider>
-                </Provider>
+                <SocketProvider>
+                    <Provider store={store}>
+                        <CategoryProvider>
+                            <ProductProvider>
+                                <SearchProvider>
+                                    <App />
+                                </SearchProvider>
+                            </ProductProvider>
+                        </CategoryProvider>
+                    </Provider>
+                </SocketProvider>
             </AuthProvider>
         </GlobalStyles>
     // </StrictMode>,

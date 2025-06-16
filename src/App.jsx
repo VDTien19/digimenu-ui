@@ -1,6 +1,8 @@
 import { Fragment, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster, ToastBar } from 'react-hot-toast';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import './App.css';
 import { AdminLayout, ClientLayout, ServiceLayout } from './layouts';
@@ -51,8 +53,9 @@ function App() {
                 )}
             </Toaster>
 
+            <ToastContainer />
             <AppInit />
-            
+
             <div className="app">
                 <Routes>
                     {publicRoutes.map((route, index) => {

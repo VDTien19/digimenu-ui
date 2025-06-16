@@ -7,8 +7,21 @@ import { AdminLayout, ClientLayout, ServiceLayout } from './layouts';
 import ProtectedRoute, { publicRoutes, privateRoutes } from './routes';
 import { SlugProvider } from '~/contexts/SlugContext';
 import GuestRoute from '~/routes/GuestRoute';
+import socket from '~/socket';
+import AppInit from './AppInit';
 
 function App() {
+    // useEffect(() => {
+    //     socket.connect();
+
+    //     socket.on('connect', () => {
+    //         console.log('Connected to the server: ', socket.id);
+    //     })
+        
+    //     return () => {
+    //         socket.off('connect');
+    //     }
+    // }, [])
     return (
         <Router>
             <Toaster
@@ -37,6 +50,9 @@ function App() {
                     />
                 )}
             </Toaster>
+
+            <AppInit />
+            
             <div className="app">
                 <Routes>
                     {publicRoutes.map((route, index) => {

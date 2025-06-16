@@ -4,30 +4,46 @@ import classNames from 'classnames/bind';
 import styles from './Orders.module.scss';
 import AdminContentHeader from '~/components/admin/AdminContentHeader';
 import OrderTable from '~/components/admin/OrderTable';
-import orderpending from '~/data/orderpending.json';
 import { getOrdersPending } from '~/api/orderApi';
+import { LoadingIcon } from '~/components/Icons';
+import socket from '~/socket';
 
 const cx = classNames.bind(styles);
 
 function Orders() {
-    const data = orderpending.data;
     const [orderPending, setOrderPending] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    console.log("orderPending: ", orderPending);
-    
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const response = await getOrdersPending();
-                // console.log('Fetched orders:', response.data);
-                setOrderPending(response.data); 
-                // console.log(orderPending) 
+                setOrderPending(response.data);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching orders:', error);
+                setLoading(false);
             }
         };
 
         fetchOrders();
+
+        // Chỉ lắng nghe sự kiện socket, không connect ở đây nữa
+        const handleNewOrder = (orderData) => {
+            console.log('🆕 [new_order]:', orderData);
+            setOrderPending((prev = []) => {
+                const updatedOrders = [orderData, ...prev];
+                console.log('✅ Updated order list:', updatedOrders);
+                return updatedOrders;
+            });
+        };
+
+        socket.on('new_order', handleNewOrder);
+
+        return () => {
+            console.log('🧹 Cleaning up socket listeners in Orders');
+            socket.off('new_order', handleNewOrder);
+        };
     }, []);
 
     return (
@@ -39,7 +55,20 @@ function Orders() {
                 />
             </div>
             <div>
-                <OrderTable orders={data} />
+                {loading ? (
+                    <div
+                        className={cx(
+                            'absolute',
+                            'top-1/2',
+                            'left-1/2',
+                            'animate-spin',
+                        )}
+                    >
+                        <LoadingIcon width="2.4rem" height="2.4rem" />
+                    </div>
+                ) : (
+                    <OrderTable orders={orderPending} />
+                )}
             </div>
         </div>
     );

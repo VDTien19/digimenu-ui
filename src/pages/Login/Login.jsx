@@ -14,6 +14,10 @@ import styles from './Login.module.scss';
 import images from '~/assets/images';
 import { useSlug } from '~/contexts/SlugContext';
 import { useAuth } from '~/contexts/AuthContext';
+import { joinAllRoomTables } from '~/socket/socketServices';
+import { getTables } from '~/api/tableApi';
+import socket from '~/socket';
+import { connectSocket } from '~/socket/socketServices';
 
 const cx = classNames.bind(styles);
 
@@ -51,28 +55,35 @@ function Login() {
     }, []);
 
     const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    try {
-        const user = await login(loginData.email, loginData.password);
-        if (!user) {
-            setError('Sai tài khoản hoặc mật khẩu');
-            return;
-        }
+        e.preventDefault();
+        setError('');
+        try {
+            const user = await login(loginData.email, loginData.password);
+            if (!user) {
+                setError('Sai tài khoản hoặc mật khẩu');
+                return;
+            }
 
-        // ✅ Điều hướng dựa trên role
-        if (user.role === 'staff') {
-            navigate(`/${slug}/service`);
-        } else if (user.role === 'admin') {
-            navigate(`/${slug}/admin`);
-        } else {
-            navigate('/');
-        }
-    } catch (err) {
-        setError(err.message || 'Lỗi đăng nhập');
-    }
-};
+            socket.once('connect', async () => {
+                console.log('✅ Socket connected after login');
+                const { data: tables } = await getTables();
+                joinAllRoomTables(tables);
 
+                // ⏳ Điều hướng sau khi đã join room
+                if (user.role === 'staff') {
+                    navigate(`/${slug}/service`);
+                } else if (user.role === 'admin') {
+                    navigate(`/${slug}/admin`);
+                } else {
+                    navigate('/');
+                }
+            });
+
+            connectSocket();
+        } catch (err) {
+            setError(err.message || 'Lỗi đăng nhập');
+        }
+    };
 
     // const handleRegister = async (e) => {
     //     e.preventDefault();

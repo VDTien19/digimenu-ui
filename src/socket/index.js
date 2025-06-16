@@ -8,6 +8,12 @@ import { io } from 'socket.io-client';
 //   reconnectionDelayMax: 5000,
 // });
 
-const socket = io();
+// const socket = io();
+
+const socket = io({
+  autoConnect: false, // QUAN TRỌNG
+  transports: ['websocket'],
+});
+
 
 export default socket;

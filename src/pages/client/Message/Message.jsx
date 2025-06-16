@@ -1,94 +1,82 @@
-import { useState, useEffect } from 'react';
-import classNames from 'classnames/bind';
+import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux'; // ✅
 import socket from '~/socket';
-
-import styles from './Message.module.scss';
+import { createOrder } from '~/store/orderSlice';
+import { clearCart } from '~/store/cartSlice';
 import MessageBubble from '~/components/MessageBubble';
-import { getTableByName } from '~/api/tableApi';
+import classNames from 'classnames/bind';
+import styles from './Message.module.scss';
 
 const cx = classNames.bind(styles);
 
 function Message() {
+    const dispatch = useDispatch(); // ✅
     const location = useLocation();
-    const isCustomer = location.pathname.includes('/status/');
     const { tableName } = useParams();
-
     const [messages, setMessages] = useState([]);
-    const [tableId, setTableId] = useState(null);
 
-    // useEffect(() => {
-    //     // Gọi API để lấy tableId dựa trên tableName
-    //     const fetchTableId = async () => {
-    //         try {
-    //             const tableData = await getTableByName(tableName);
-    //             console.log('tableData: ', tableData.data._id);
-    //             const { _id } = tableData.data;
-    //             setTableId(_id);
-    //             console.log(`Fetched tableId: ${_id}`);
+    const { orderData, tableData } = location.state || {};
+    const roomName = tableData ? `room_table_${tableData._id}` : '';
 
-    //             // Tham gia room khi có tableId
-    //             const roomName = `room_table_${_id}`;
-    //             socket.emit('join_room', { room: roomName });
-    //             console.log(`Joined room: ${roomName}`);
-    //         } catch (error) {
-    //             console.error('Error fetching table info:', error.message);
-    //         }
-    //     };
+    useEffect(() => {
+        if (!tableData) return;
 
-    //     // Khởi tạo kết nối WebSocket
-    //     socket.connect();
+        socket.connect();
 
-    //     // Gọi API khi component mount
-    //     fetchTableId();
+        socket.on('connect', () => {
+            console.log('✅ Socket connected');
+            socket.emit('join_room', { room: roomName });
+            console.log(`✅ Joined room: ${roomName}`);
+        });
 
-    //     // Lắng nghe sự kiện
-    //     socket.on('connect', () => {
-    //         console.log('Socket connected:', socket.id);
-    //         if (tableId) {
-    //             const roomName = `room_table_${tableId}`;
-    //             socket.emit('join_room', { room: roomName });
-    //         }
-    //     });
+        socket.on('customer_notification', (data) => {
+            console.log('🔥 [customer_notification]:', data);
+            setMessages((prev) => [...prev, data]);
+            console.log(data.target)
+        });
 
-    //     socket.on('connect_error', (error) => {
-    //         console.log('Socket connect error:', error.message);
-    //     });
+        // ✅ Gọi API order sau khi join room
+        const callOrderApi = async () => {
+            try {
+                if (orderData) {
+                    const res = await dispatch(createOrder(orderData)).unwrap();
+                    console.log('✅ Order created:', res);
+                    if(res) {
+                        dispatch(clearCart());
+                    }
+                }
+            } catch (err) {
+                console.error('❌ Order failed:', err);
+            }
+        };
 
-    //     socket.on('customer_notification', (data) => {
-    //         const { message, target, data: orderData, timestamp } = data;
-    //         console.log('Received customer_notification:', data);
-    //         if (target === 'customer' && orderData?.table_id?._id === tableId) {
-    //             setMessages((prev) => [
-    //                 ...prev,
-    //                 { message, target, orderData, timestamp },
-    //             ]);
-    //         }
-    //     });
+        callOrderApi();
 
-    //     // Cleanup
-    //     return () => {
-    //         if (tableId) {
-    //             const roomName = `room_table_${tableId}`;
-    //             socket.emit('leave_room', { room: roomName });
-    //         }
-    //         socket.off('connect');
-    //         socket.off('connect_error');
-    //         socket.off('customer_notification');
-    //         socket.disconnect();
-    //     };
-    // }, [tableName]);
-
-    
+        return () => {
+            socket.emit('leave_room', { room: roomName });
+            socket.off('customer_notification');
+            socket.off('connect');
+        };
+    }, [tableName]);
 
     return (
         <div className={cx('wrapper')}>
-            {messages.map((msg, index) => (
+            {/* {messages.map((msg, index) => (
                 <MessageBubble
                     key={index}
                     isCustomer={msg.target === 'customer'}
                     message={msg.message}
                     orderData={msg.orderData}
+                />
+            ))} */}
+            {messages.map((msg, index) => (
+                <MessageBubble
+                    key={index}
+                    // isCustomer={msg.target === 'customer'}
+                    type={msg.type}
+                    message={msg.message}
+                    orderData={msg.data}
                 />
             ))}
         </div>

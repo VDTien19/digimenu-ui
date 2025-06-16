@@ -65,25 +65,15 @@ function Cart() {
             table_id: dataTable._id,
             notes,
             items: cartItems.map(item => ({
-                item_id: item.id,
-                quantity: item.quantity
+            item_id: item.id,
+            quantity: item.quantity
             }))
         };
 
-        try {
-            setLoading(true);
-            await dispatch(createOrder(orderData)).unwrap();
-            dispatch({ type: 'cart/clearCart' });
-            toast('Gọi món thành công! Chờ nhà hàng xác nhận.');
-            // Chuyển trang và truyền tableId qua state
-            navigate(`/${slug}/status/${tableName}?encode=${dataTable?.encode}`, {
-                state: { tableId: dataTable._id }
-            });
-        } catch (error) {
-            alert(error.message || "Gọi món thất bại.");
-        } finally {
-            setLoading(false);
-        }
+        // Thay vì gọi API, chuyển sang trang status, mang theo orderData
+        navigate(`/${slug}/status/${tableName}?encode=${dataTable.encode}`, {
+            state: { orderData, tableData: dataTable }
+        });
     };
 
     return (

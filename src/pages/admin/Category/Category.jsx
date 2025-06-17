@@ -49,7 +49,7 @@ function Category() {
             cellClass: 'cell-name',
             headClass: 'head-name',
         },
-        { key: 'quantity', label: 'Số lượng món', cellClass: 'cell-quantity' },
+        { key: 'item_count', label: 'Số lượng món', cellClass: 'cell-quantity' },
         {
             key: 'actions',
             label: '',
@@ -85,14 +85,14 @@ function Category() {
         _id: data._id,
         index: index + 1,
         name: data.name,
-        quantity: data.quantity || 0,
+        item_count: data.item_count || 0,
     }));
 
     const categoriesFilter = categories.map((data, index) => ({
         _id: data._id,
         index: index + 1,
         name: data.name,
-        quantity: data.quantity || 0,
+        item_count: data.item_count || 0,
     }));
 
     const handleSave = async (formData) => {

@@ -54,7 +54,7 @@ function CategoryModal({ isOpen, onClose, title, data, onSave }) {
                             onChange={handleChange}
                         />
                     </div>
-                    <div className={cx('form-group')}>
+                    {/* <div className={cx('form-group')}>
                         <label
                             className={cx('form-label', 'font-medium')}
                             htmlFor="status"
@@ -71,7 +71,7 @@ function CategoryModal({ isOpen, onClose, title, data, onSave }) {
                             <option value="active">Hoạt động</option>
                             <option value="inactive">Tạm dừng</option>
                         </select>
-                    </div>
+                    </div> */}
                     <button
                         onClick={(e) => {
                             e.preventDefault();

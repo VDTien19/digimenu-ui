@@ -44,17 +44,21 @@ function Table() {
 
     const handleChangeQR = async () => {
         if (!tableData) return;
-    
+
         const encode = Math.random().toString(36).substring(2, 15);
         const tableName = tableData?.name;
-    
+
         const updatedTable = {
             encode,
-            table_url: `${import.meta.env.VITE_URL_LOCAL}/${slug}?tableName=${tableName}&encode=${encode}`,
+            table_url: `${
+                import.meta.env.VITE_URL_LOCAL
+            }/${slug}?tableName=${tableName}&encode=${encode}`,
         };
-    
+
         try {
-            const updated = await dispatch(updateTable({ id: tableData._id, data: updatedTable })).unwrap();
+            const updated = await dispatch(
+                updateTable({ id: tableData._id, data: updatedTable }),
+            ).unwrap();
             setTableData(updated);
             // console.log('QR updated for table', tableData.id, updatedTable);
             // tableRef.current.toUrl = `http://localhost:5173/nha-hang-abc?tableName=${encode}`;
@@ -67,8 +71,18 @@ function Table() {
 
     const tableColumns = [
         {
-            key: 'id',
-            label: 'ID',
+            key: '',
+            label: 'Status',
+            render: (_, item) => (
+                <div>
+                    <div
+                        className={cx('status', {
+                            'green-stt': item?.status === 'Trống',
+                            'yellow-stt': item?.status !== 'Trống',
+                        })}
+                    ></div>
+                </div>
+            ),
             cellClass: 'cell-order',
             headClass: 'head-order',
         },
@@ -85,7 +99,19 @@ function Table() {
                 if (!item || !item.table_url) return null;
                 return (
                     <div className={cx('w-full', 'text-center')}>
-                        <Link to={item?.table_url} target="_blank" rel="noopener noreferrer" className={cx('to-url', 'flex', 'items-center', 'justify-center', 'gap-2', 'whitespace-nowrap')}>
+                        <Link
+                            to={item?.table_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cx(
+                                'to-url',
+                                'flex',
+                                'items-center',
+                                'justify-center',
+                                'gap-2',
+                                'whitespace-nowrap',
+                            )}
+                        >
                             <span>Xem</span>
                             <NavigationIcon fill="#1212d6" />
                         </Link>
@@ -125,7 +151,7 @@ function Table() {
                         // onView={() => console.log('View', row)}
                         isView={false}
                         // isDownload={true}
-                        onDownload={() => console.log("Download", row)}
+                        onDownload={() => console.log('Download', row)}
                     />
                 );
             },
@@ -152,8 +178,19 @@ function Table() {
                     tables.length > 0 ? (
                         <DataTable columns={tableColumns} data={tables} />
                     ) : (
-                        <div className={cx('w-full', 'mt-50', 'flex', 'justify-center', 'items-center')}>
-                            <Image className={cx('w-90')} src={images.searchNotFound} />
+                        <div
+                            className={cx(
+                                'w-full',
+                                'mt-50',
+                                'flex',
+                                'justify-center',
+                                'items-center',
+                            )}
+                        >
+                            <Image
+                                className={cx('w-90')}
+                                src={images.searchNotFound}
+                            />
                         </div>
                     )
                 ) : (
@@ -162,12 +199,25 @@ function Table() {
             </div>
             {/* <TableQRCode hidden ref={tableRef} toUrl='http://localhost:5173/nha-hang-abc?tableName=5' /> */}
 
-            <TableModal data={tableData} isOpen={showModal} onClose={() => setShowModal(false)} onChangeQR={handleChangeQR} />
-            <CreateTableModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
+            <TableModal
+                data={tableData}
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onChangeQR={handleChangeQR}
+            />
+            <CreateTableModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+            />
             <ConfirmModal
                 isOpen={showConfirmModal}
                 onClose={() => setShowConfirmModal(false)}
-                message={<div>Bạn chắc chắn muốn xóa <b>bàn {tableData?.name}</b> chứ ?</div>}
+                message={
+                    <div>
+                        Bạn chắc chắn muốn xóa <b>bàn {tableData?.name}</b> chứ
+                        ?
+                    </div>
+                }
                 onConfirm={() => {
                     dispatch(deleteTable(tableData?._id));
                     setShowConfirmModal(false);

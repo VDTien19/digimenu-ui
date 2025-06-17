@@ -38,3 +38,17 @@
         object-fit: contain;
     }
 }
+
+.status {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    
+    &.green-stt {
+        background-color: #3e8e41;
+    }
+
+    &.yellow-stt {
+        background-color: #f7dc6f;
+    }
+}

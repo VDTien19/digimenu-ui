@@ -21,7 +21,7 @@ const MENU_ITEMS = [
         // },
     },
     {
-        title: 'Phân tích',
+        title: 'Thống kê',
         to: config.routes.admin_analyst,
         icon: <FontAwesomeIcon icon={faChartSimple} />
     },
@@ -55,6 +55,11 @@ const MENU_ITEMS = [
         to: config.routes.admin_payment_method,
         icon: <FontAwesomeIcon icon={faCreditCardAlt} />
     },
+    // {
+    //     title: 'Đăng xuất',
+    //     to: null,
+    //     icon: <FontAwesomeIcon icon={faCreditCardAlt} />
+    // }
     // {
     //     title: 'Quản lý hoá đơn',
     //     to: config.routes.admin_invoice,

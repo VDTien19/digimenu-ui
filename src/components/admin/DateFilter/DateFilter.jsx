@@ -38,35 +38,46 @@ const quickOptions = [
             };
         },
     },
-    {
-        label: 'Tháng trước',
-        value: 'lastMonth',
-        getRange: () => {
-            const now = subMonths(new Date(), 1);
-            return {
-                from: startOfMonth(now),
-                to: endOfMonth(now),
-            };
-        },
-    },
+    // {
+    //     label: 'Tháng trước',
+    //     value: 'lastMonth',
+    //     getRange: () => {
+    //         const now = subMonths(new Date(), 1);
+    //         return {
+    //             from: startOfMonth(now),
+    //             to: endOfMonth(now),
+    //         };
+    //     },
+    // },
 ];
 
-function DateFilter({ onChange }) {
-    const [from, setFrom] = useState(null);
-    const [to, setTo] = useState(null);
-    const [activeOption, setActiveOption] = useState('last30days');
+function DateFilter({ onChange, initialFrom, initialTo, initialActiveOption }) {
+    const [from, setFrom] = useState(initialFrom || null);
+    const [to, setTo] = useState(initialTo || null);
+    const [activeOption, setActiveOption] = useState(initialActiveOption || '');
 
-    useEffect(() => {
-        if (from && to) {
-            onChange({ from, to });
-        }
-    }, [from, to, onChange]);
-
-    const handleQuickSelect = (option) => {
+    // Xử lý quick select
+    const handleQuickSelect = (e, option) => {
+        e.preventDefault(); // Ngăn reload trang
         const { from, to } = option.getRange();
         setFrom(from);
         setTo(to);
         setActiveOption(option.value);
+        onChange({ from, to }); // Gọi API
+    };
+
+    // Xử lý thay đổi từ DatePicker
+    const handleDatePickerChange = (date, isFrom) => {
+        if (isFrom) {
+            setFrom(date);
+        } else {
+            setTo(date);
+        }
+        setActiveOption('');
+        // Chỉ gọi onChange khi cả from và to được chọn
+        if ((isFrom && to && date) || (!isFrom && from && date)) {
+            onChange({ from: isFrom ? date : from, to: isFrom ? to : date });
+        }
     };
 
     return (
@@ -80,15 +91,17 @@ function DateFilter({ onChange }) {
                     {quickOptions.map((option) => (
                         <label
                             key={option.value}
-                            className={cx('option-item', 'flex', 'items-center', 'gap-2', 'cursor-pointer', 'text-xl', 'font-medium')}
+                            className={cx('option-item', 'flex', 'items-center', 'gap-2', 'cursor-pointer', 'text-xl', 'font-medium', {
+                                'active': activeOption === option.value,
+                            })}
                         >
                             <input
                                 type="radio"
                                 name="quickRange"
                                 value={option.value}
                                 checked={activeOption === option.value}
-                                onChange={() => handleQuickSelect(option)}
-                                className="accent-indigo-600 w-6 h-6"
+                                onChange={(e) => handleQuickSelect(e, option)}
+                                className="accent-green-500 w-6 h-6"
                             />
                             <span>
                                 {option.label}
@@ -113,10 +126,7 @@ function DateFilter({ onChange }) {
                             </div>
                             <DatePicker
                                 selected={from}
-                                onChange={(date) => {
-                                    setFrom(date);
-                                    setActiveOption('');
-                                }}
+                                onChange={(date) => handleDatePickerChange(date, true)}
                                 selectsStart
                                 startDate={from}
                                 endDate={to}
@@ -133,10 +143,7 @@ function DateFilter({ onChange }) {
                             </div>
                             <DatePicker
                                 selected={to}
-                                onChange={(date) => {
-                                    setTo(date);
-                                    setActiveOption('');
-                                }}
+                                onChange={(date) => handleDatePickerChange(date, false)}
                                 selectsEnd
                                 startDate={from}
                                 endDate={to}

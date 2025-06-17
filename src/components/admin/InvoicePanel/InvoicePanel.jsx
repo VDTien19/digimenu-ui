@@ -1,25 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 
-import { CloseIconThin } from '~/components/Icons';
+import { CloseIconThin, AddIcon } from '~/components/Icons';
 import styles from './InvoicePanel.module.scss';
 import InvoiceModal from '~/components/InvoiceModal';
+import * as invoiceApi from '~/api/invoiceApi';
 
 const cx = classNames.bind(styles);
 
-const mockInvoices = {
-    '2025-05-01': Array.from({ length: 20 }, (_, i) => ({
-        id: `HD00${i + 1}`,
-        total: 300000,
-    })),
-    '2025-05-02': [{ id: 'HD003', total: 880000 }],
-    // ... thêm ngày khác nếu cần
-};
-
 function InvoicePanel({ date, onClose }) {
-    const invoices = mockInvoices[date] || [];
+    const [invoices, setInvoices] = useState([]);
+    const [invoiceItem, setInvoiceItem] = useState([]);
 
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        const fetchInvoicesByDate = async () => {
+            try {
+                const response = await invoiceApi.getInvoicesByDate(date);
+                setInvoices(response.data);
+                console.log("response.data: ", response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchInvoicesByDate();
+    }, [date])
+
+    const fetchInvoiceById = async (id) => {
+        try {
+            const response = await invoiceApi.getInvoiceById(id);
+            setInvoiceItem(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <div
@@ -66,7 +81,7 @@ function InvoicePanel({ date, onClose }) {
                     <ul className="space-y-2 pt-0 rounded-b-2xl">
                         {invoices.map((invoice) => (
                             <li
-                                key={invoice.id}
+                                key={invoice._id}
                                 className={cx(
                                     'invoice-item',
                                     'flex',
@@ -76,28 +91,26 @@ function InvoicePanel({ date, onClose }) {
                                 )}
                                 onClick={() => {
                                     setShowModal(true);
-                                    console.log(showModal);
+                                    fetchInvoiceById(invoice._id);
+                                    console.log("showModal: ", showModal);
                                 }}
                             >
                                 <span className={cx('font-medium')}>
-                                    Mã: {invoice.id}
+                                    Mã: {invoice.invoice_number}
                                 </span>
                                 <span>
-                                    {invoice.total.toLocaleString()} VND
+                                    {invoice.total_cost.toLocaleString()} VND
                                 </span>
                             </li>
                         ))}
                     </ul>
                 )}
             </div>
-            {showModal && (
-                <InvoiceModal
-                    // invoiceId={invoices[0].id}
-                    isOpen={showModal}
-                    onClose={() => setShowModal(false)}
-                    // item={}
-                />
-            )}
+            <InvoiceModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                item={invoiceItem}
+            />
         </div>
     );
 }

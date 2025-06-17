@@ -17,7 +17,7 @@ function Home () {
                     <RevenueChart />
                 </div>
                 <div className={cx('product-chart')}>
-                    <TopProductsChart />
+                    {/* <TopProductsChart /> */}
                 </div>
             </div>
         </div>

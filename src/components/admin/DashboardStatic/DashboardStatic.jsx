@@ -10,6 +10,7 @@ import { fetchCategories } from '~/store/categorySlice';
 import { fetchMenuItems } from '~/store/menuItemSlice';
 import { fetchTable } from '~/store/tableSlice';
 import SlideUpNumber from '~/components/SlideUpNumber';
+import { fetchAllRevenue, fetchPopularItems } from '~/store/dashboardSlice';
 // import { fetchOrders } from '~/store/orderSlice';
 
 const cx = classNames.bind(styles);
@@ -29,10 +30,19 @@ function DashboardStatic() {
     const dispatch = useDispatch();
     const { listCategory, listMenuItem, listTables } = useSelector(selectDashboardData);
 
+    const {
+        allRevenue,
+        popularItems,
+        loading,
+        error,
+    } = useSelector((state) => state.dashboard);
+
     useEffect(() => {
         dispatch(fetchCategories());
         dispatch(fetchMenuItems());
         dispatch(fetchTable());
+        dispatch(fetchAllRevenue());
+        dispatch(fetchPopularItems(5));
     }, [dispatch]);
 
     // useEffect(() => {
@@ -40,6 +50,9 @@ function DashboardStatic() {
     //     console.log('Products:', listMenuItem);
     //     console.log('Tables:', listTables);
     // }, [listCategory, listMenuItem, listTables]);
+
+    if (loading) return <p>Đang tải dữ liệu...</p>;
+    if (error) return <p>Lỗi: {error}</p>;
 
     return (
         <div
@@ -94,7 +107,7 @@ function DashboardStatic() {
                     Tổng hoá đơn
                 </p>
                 <span className={cx('text-4xl', 'font-bold')}>
-                    <SlideUpNumber number={97283728} />
+                    <SlideUpNumber number={allRevenue?.count || 0} />
                     {/* <CountUp start={0} end={97283728} duration={2} delay={0} separator="," /> */}
                 </span>
             </div>
@@ -119,7 +132,7 @@ function DashboardStatic() {
                     Tổng doanh thu
                 </p>
                 <span className={cx('text-4xl', 'font-bold')}>
-                    <SlideUpNumber number={97283728} />
+                    <SlideUpNumber number={allRevenue?.total_revenue} />
                 </span>
             </div>
             <div

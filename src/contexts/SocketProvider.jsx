@@ -45,7 +45,9 @@ export function SocketProvider({ children }) {
                 setOrderPending((prev = []) => {
                     const updatedOrders = [normalizedOrder, ...prev.filter(order => order._id !== normalizedOrder._id)];
                     // console.log('✅ Cập nhật danh sách đơn:', updatedOrders);
-                    toast.success(`Đơn hàng mới: Bàn ${normalizedOrder.table_id?.name || '-'}`);
+                    if (window.location.pathname.includes('service')) {
+                        toast.success(`Đơn hàng mới: Bàn ${normalizedOrder.table_id?.name || '-'}`);
+                    }
                     return updatedOrders;
                 });
             }, 0);

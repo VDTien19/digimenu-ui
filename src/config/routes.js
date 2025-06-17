@@ -25,11 +25,11 @@ const routes = {
     admin_payment_method: '/:slug/admin/payment-method',
 
     // Service routes
-    service_home: '/:slug/service',
+    // service_home: '/:slug/service',
     service_category: '/:slug/service/category',
     service_menu: '/:slug/service/menu',
     service_table: '/:slug/service/table',
-    service_order: '/:slug/service/order',
+    service_order: '/:slug/service',
     service_payment: '/:slug/service/payment',
     // service_login: '/:slug/service/login',
 };

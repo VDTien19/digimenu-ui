@@ -9,6 +9,16 @@ export const getAllUsers = async () => {
     }
 }
 
+export const getAllRevenue = async () => {
+    try {
+        const response = await httpRequest.get(`/admin/revenue`);
+        // console.log("All revenue: ", response);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export const getRevenue = async (from, to) => {
     try {
         const response = await httpRequest.get(`/admin/revenue?from=${from}&to=${to}`);
@@ -38,7 +48,7 @@ export const getRevenueByMonth = async () => {
 
 export const getPopularItem = async (limit) => {
     try {
-        const response = await httpRequest.get(`/admin/popular-item?limit=${limit}`);
+        const response = await httpRequest.get(`/admin/popular-items?limit=${limit}`);
         return response.data;
     } catch (err) {
         console.error(err);

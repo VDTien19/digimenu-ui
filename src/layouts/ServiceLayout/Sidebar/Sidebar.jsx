@@ -11,11 +11,11 @@ import Image from '~/components/Images';
 const cx = classNames.bind(styles);
 
 const MENU_ITEMS = [
-    {
-        title: 'Dashboard',
-        to: config.routes.service_home,
-        icon: <FontAwesomeIcon icon={faHouse} />
-    },
+    // {
+    //     title: 'Dashboard',
+    //     to: config.routes.service_home,
+    //     icon: <FontAwesomeIcon icon={faHouse} />
+    // },
     {
         title: 'Quản lý đơn hàng',
         to: config.routes.service_order,

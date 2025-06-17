@@ -18,6 +18,7 @@ import { joinAllRoomTables } from '~/socket/socketServices';
 import { getTables } from '~/api/tableApi';
 import socket from '~/socket';
 import { connectSocket } from '~/socket/socketServices';
+import toast from 'react-hot-toast';
 
 const cx = classNames.bind(styles);
 
@@ -63,6 +64,8 @@ function Login() {
                 setError('Sai tài khoản hoặc mật khẩu');
                 return;
             }
+
+            // toast('Đăng nhập thành công.')
 
             socket.once('connect', async () => {
                 console.log('✅ Socket connected after login');

@@ -3,7 +3,7 @@ import cartReducer from './cartSlice';
 import categoryReducer from './categorySlice';
 import menuItemReducer from './menuItemSlice';
 import tableReducer from './tableSlice';
-import { dashboardApi } from './dashboardSlice';
+import dashboardReducer from './dashboardSlice';
 import orderReducer from './orderSlice';
 
 export const store = configureStore({
@@ -12,10 +12,9 @@ export const store = configureStore({
         category: categoryReducer,
         menuItem: menuItemReducer,
         table: tableReducer,
-        [dashboardApi.reducerPath]: dashboardApi.reducer,
+        dashboard: dashboardReducer,
         order: orderReducer,
     },
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(dashboardApi.middleware),
+    // Không cần middleware RTK Query nếu không dùng createApi
     // devTools: process.env.NODE_ENV !== 'production',
 });

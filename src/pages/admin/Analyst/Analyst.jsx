@@ -6,7 +6,6 @@ import DashboardStatic from '~/components/admin/DashboardStatic';
 import RevenueChart from '~/components/admin/RevenueChart';
 import DateFilter from '~/components/admin/DateFilter';
 import TopProductsChart from '~/components/admin/TopProductsChart';
-import { useGetRevenueQuery, useGetTopProductsQuery } from '~/store/dashboardSlice';
 
 const cx = classNames.bind(styles);
 
@@ -21,7 +20,7 @@ function Analyst () {
                     <RevenueChart />
                 </div>
                 <div className={cx('product-chart')}>
-                    <TopProductsChart />
+                    {/* <TopProductsChart /> */}
                 </div>
             </div>
         </div>

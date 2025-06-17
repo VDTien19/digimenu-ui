@@ -51,7 +51,7 @@ function AdminHeader ({ onToggleSidebar }) {
                 <LogoutIcon />
             </button>
 
-            <ConfirmModal message='Bạn chắc chắn muốn đăng xuất?' isOpen={showModal} onConfirm={handleLogout} />
+            <ConfirmModal message='Bạn chắc chắn muốn đăng xuất?' isOpen={showModal} onConfirm={handleLogout} onClose={() => setShowModal(false)} />
         </div>
     );
 }

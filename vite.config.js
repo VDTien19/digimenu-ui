@@ -25,11 +25,13 @@ export default defineConfig({
     },
     server: {
         proxy: {
-        '/socket.io': {
-            target: 'http://localhost:5000',
-            ws: true,
-            changeOrigin: true,
-        },
+            '/socket.io': {
+                target: 'https://digimenu-backend-production.up.railway.app',
+                ws: true,
+                changeOrigin: true,
+                secure: true, // Đảm bảo chấp nhận chứng chỉ SSL
+                logLevel: 'debug', // Để debug chi tiết lỗi proxy
+            },
         },
     },
 });

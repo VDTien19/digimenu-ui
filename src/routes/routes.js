@@ -40,7 +40,7 @@ const privateRoutes = [
     { path: config.routes.admin_payment_method, component: PaymentMethod, layout: 'admin', roleRequired: 'admin' },
 
     // Service (staff) routes
-    { path: config.routes.service_home, component: ServiceHome, layout: 'staff', roleRequired: 'staff' },
+    // { path: config.routes.service_home, component: ServiceHome, layout: 'staff', roleRequired: 'staff' },
     { path: config.routes.service_order, component: Orders, layout: 'staff', roleRequired: 'staff' },
     { path: config.routes.service_payment, component: ServicePayment, layout: 'staff', roleRequired: 'staff' },
     { path: config.routes.service_table, component: Table, layout: 'staff', roleRequired: 'staff' },

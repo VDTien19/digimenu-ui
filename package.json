@@ -23,6 +23,8 @@
     "dom-to-image": "^2.6.0",
     "framer-motion": "^12.10.0",
     "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "normalize.css": "^8.0.1",
     "odometer": "^0.4.8",
     "prop-types": "^15.8.1",

@@ -7,11 +7,6 @@ import DashboardStatic from '~/components/admin/DashboardStatic';
 import RevenueComparisonChart from '~/components/admin/RevenueComparisonChart';
 import RevenueChart from '~/components/admin/RevenueChart';
 import DateFilter from '~/components/admin/DateFilter';
-import TopProductsChart from '~/components/admin/TopProductsChart';
-import {
-    useGetRevenueQuery,
-    useGetTopProductsQuery,
-} from '~/store/dashboardSlice';
 import { getRevenueByMonth } from '~/api/adminApi'
 
 const cx = classNames.bind(styles);

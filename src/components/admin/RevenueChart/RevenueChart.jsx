@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import classNames from 'classnames/bind';
 import {
     LineChart,
@@ -10,9 +10,11 @@ import {
     ResponsiveContainer,
     Dot,
 } from 'recharts';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRevenueByDay } from '~/store/dashboardSlice';
+import { subDays, format } from 'date-fns';
 
-// import InvoiceModal from '~/components/admin/InvoiceModal';
 import InvoicePanel from '~/components/admin/InvoicePanel';
 import DateFilter from '~/components/admin/DateFilter';
 
@@ -20,45 +22,51 @@ import styles from './RevenueChart.module.scss';
 
 const cx = classNames.bind(styles);
 
-const mockData = [
-    { date: '2025-05-01', revenue: 520000 },
-    { date: '2025-05-02', revenue: 880000 },
-    { date: '2025-05-03', revenue: 630000 },
-    { date: '2025-05-04', revenue: 470000 },
-    { date: '2025-05-05', revenue: 1020000 },
-    { date: '2025-05-06', revenue: 780000 },
-    { date: '2025-05-07', revenue: 920000 },
-    { date: '2025-05-08', revenue: 1100000 },
-    { date: '2025-05-09', revenue: 450000 },
-    { date: '2025-05-10', revenue: 980000 },
-    { date: '2025-05-11', revenue: 560000 },
-    { date: '2025-05-12', revenue: 720000 },
-    { date: '2025-05-13', revenue: 1340000 },
-    { date: '2025-05-14', revenue: 890000 },
-    { date: '2025-05-15', revenue: 700000 },
-    { date: '2025-05-16', revenue: 610000 },
-    { date: '2025-05-17', revenue: 1250000 },
-    { date: '2025-05-18', revenue: 460000 },
-    { date: '2025-05-19', revenue: 570000 },
-    { date: '2025-05-20', revenue: 980000 },
-    { date: '2025-05-21', revenue: 880000 },
-    { date: '2025-05-22', revenue: 1310000 },
-    { date: '2025-05-23', revenue: 1440000 },
-    { date: '2025-05-24', revenue: 530000 },
-    { date: '2025-05-25', revenue: 1190000 },
-    { date: '2025-05-26', revenue: 600000 },
-    { date: '2025-05-27', revenue: 810000 },
-    { date: '2025-05-28', revenue: 430000 },
-    { date: '2025-05-29', revenue: 970000 },
-    { date: '2025-05-30', revenue: 1500000 },
-    { date: '2025-05-31', revenue: 690000 },
-];
+// Khởi tạo khoảng thời gian mặc định: 30 ngày qua
+const getDefaultDateRange = () => {
+    const to = new Date();
+    const from = subDays(to, 29);
+    return { from, to };
+};
 
-export default function RevenueChart() {
+function RevenueChart() {
+    const dispatch = useDispatch();
     const [selectedDate, setSelectedDate] = useState(null);
-    const totalRevenue = mockData.reduce((sum, item) => sum + item.revenue, 0);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
+    const [lastCalledRange, setLastCalledRange] = useState(null); // Lưu khoảng thời gian đã gọi API
 
+    const { revenueByDay, loading, error } = useSelector((state) => state.dashboard);
+
+    // Tính tổng doanh thu
+    const totalRevenue = revenueByDay
+        ? revenueByDay.reduce((sum, item) => sum + item.revenue, 0)
+        : 0;
+
+    // Xử lý thay đổi khoảng thời gian
+    const handleDateChange = useCallback(({ from, to }) => {
+        if (!from || !to) return;
+
+        const fromFormatted = format(from, 'yyyy-MM-dd');
+        const toFormatted = format(to, 'yyyy-MM-dd');
+
+        // Chỉ gọi API nếu khoảng thời gian thay đổi
+        if (
+            !lastCalledRange ||
+            lastCalledRange.from !== fromFormatted ||
+            lastCalledRange.to !== toFormatted
+        ) {
+            dispatch(fetchRevenueByDay({ from: fromFormatted, to: toFormatted }));
+            setLastCalledRange({ from: fromFormatted, to: toFormatted });
+        }
+    }, [dispatch, lastCalledRange]);
+
+    // Gọi API lần đầu khi mount
+    useEffect(() => {
+        const { from, to } = getDefaultDateRange();
+        handleDateChange({ from, to });
+    }, []); // Chạy một lần khi mount
+
+    // Xử lý resize cho mobile
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 500);
@@ -66,6 +74,10 @@ export default function RevenueChart() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    if (loading) return <div className={cx('wrapper')}>Đang tải dữ liệu...</div>;
+    if (error) return <div className={cx('wrapper')}>Đã có lỗi: {error.toString()}</div>;
+    if (!revenueByDay || !revenueByDay.length) return <div className={cx('wrapper')}>Không có dữ liệu để hiển thị</div>;
 
     return (
         <div className={cx('wrapper')}>
@@ -80,7 +92,12 @@ export default function RevenueChart() {
                     transition={{ duration: 2, ease: 'easeInOut' }}
                 >
                     <div className="mb-4">
-                        <DateFilter />
+                        <DateFilter
+                            onChange={handleDateChange}
+                            initialFrom={getDefaultDateRange().from}
+                            initialTo={getDefaultDateRange().to}
+                            initialActiveOption="last30days"
+                        />
                     </div>
                     <div className="p-4 bg-white rounded-xl shadow relative">
                         <div className="flex justify-between items-center mb-2">
@@ -94,7 +111,7 @@ export default function RevenueChart() {
 
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart
-                                data={mockData}
+                                data={revenueByDay}
                                 onClick={(e) => {
                                     if (e && e.activeLabel)
                                         setSelectedDate(e.activeLabel);
@@ -105,7 +122,9 @@ export default function RevenueChart() {
                                     strokeDasharray="3 3"
                                 />
                                 <XAxis dataKey="date" />
-                                <YAxis />
+                                <YAxis
+                                    tickFormatter={(val) => `${(val / 1000000).toFixed(1)}M`}
+                                />
                                 <Tooltip
                                     formatter={(val) =>
                                         `${val.toLocaleString()} VND`
@@ -151,30 +170,9 @@ export default function RevenueChart() {
                         />
                     )}
                 </motion.div>
-
-                {/* <AnimatePresence>
-                    {selectedDate && (
-                        <motion.div
-                            className={cx(
-                                'invoice-panel',
-                                'w-[350px]',
-                                'h-[416px]',
-                                'shrink-0',
-                            )}
-                            layout
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 50 }}
-                            transition={{ duration: 0.5, ease: 'easeInOut' }}
-                        >
-                            <InvoicePanel
-                                date={selectedDate}
-                                onClose={() => setSelectedDate(null)}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence> */}
             </motion.div>
         </div>
     );
 }
+
+export default RevenueChart;

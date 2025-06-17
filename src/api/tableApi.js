@@ -3,7 +3,7 @@ import * as httpRequest from '~/utils/httpRequest';
 export const getTables = async () => {
     try {
         const response = await httpRequest.get('/tables');
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to get tables' };
     }
@@ -12,7 +12,7 @@ export const getTables = async () => {
 export const getTableById = async (id) => {
     try {
         const response = await httpRequest.get(`/tables/${id}`);
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to get table by id' };
     }
@@ -21,7 +21,7 @@ export const getTableById = async (id) => {
 export const addTable = async (table) => {
     try {
         const response = await httpRequest.post('/tables/add', table);
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to add table' };
     }
@@ -30,7 +30,7 @@ export const addTable = async (table) => {
 export const updateTable = async (id, table) => {
     try {
         const response = await httpRequest.put(`/tables/update/${id}`, table);
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to update table' };
     }
@@ -48,7 +48,7 @@ export const deleteTable = async (id) => {
 export const getTableWithOrders = async (id) => {
     try {
         const response = await httpRequest.get(`/tables/${id}/orders`);
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to get table with orders' };
     }
@@ -57,7 +57,7 @@ export const getTableWithOrders = async (id) => {
 export const getTableByName = async (name) => {
     try {
         const response = await httpRequest.get(`/tables/name/${name}`);
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to get table by name' };
     }

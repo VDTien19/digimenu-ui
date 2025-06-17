@@ -31,9 +31,9 @@ function Table() {
     const { slug } = useSlug();
     const { tables, hasSearched, searchValue, setHasSearched } = useSearch();
 
-    useEffect(() => {
-        console.log('tables', tables);
-    }, [tables]);
+    // useEffect(() => {
+    //     console.log('tables', tables);
+    // }, [tables]);
 
     const { listTables } = useSelector((state) => state.table);
     const dispatch = useDispatch();
@@ -54,7 +54,7 @@ function Table() {
         };
     
         try {
-            const updated = await dispatch(updateTable({ id: tableData.id, data: updatedTable })).unwrap();
+            const updated = await dispatch(updateTable({ id: tableData._id, data: updatedTable })).unwrap();
             setTableData(updated);
             // console.log('QR updated for table', tableData.id, updatedTable);
             // tableRef.current.toUrl = `http://localhost:5173/nha-hang-abc?tableName=${encode}`;
@@ -169,7 +169,7 @@ function Table() {
                 onClose={() => setShowConfirmModal(false)}
                 message={<div>Bạn chắc chắn muốn xóa <b>bàn {tableData?.name}</b> chứ ?</div>}
                 onConfirm={() => {
-                    dispatch(deleteTable(tableData?.id));
+                    dispatch(deleteTable(tableData?._id));
                     setShowConfirmModal(false);
                     setTableData(null);
                 }}

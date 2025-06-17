@@ -146,7 +146,7 @@ function Login() {
                             value="Đăng nhập"
                             className={cx('btn', 'solid')}
                         />
-                        <p className={cx('social-text')}>
+                        {/* <p className={cx('social-text')}>
                             hoặc đăng nhập bằng tài khoản mạng xã hội
                         </p>
                         <div className={cx('social-media')}>
@@ -162,7 +162,7 @@ function Login() {
                             <a href="#" className={cx('social-icon')}>
                                 <FontAwesomeIcon icon={faLinkedinIn} />
                             </a>
-                        </div>
+                        </div> */}
                     </form>
 
                     <form action="#" className={cx('sign-up-form')}>
@@ -244,16 +244,16 @@ function Login() {
             <div className={cx('panels-container')}>
                 <div className={cx('panel', 'left-panel')}>
                     <div className={cx('content')}>
-                        <h3>Bạn chưa có tài khoản?</h3>
+                        {/* <h3>Bạn chưa có tài khoản?</h3>
                         <p>
                             Đăng ký ngay để trải nghiệm những tính năng tuyệt
                             vời của chúng tôi. Chỉ mất vài phút!
-                        </p>
+                        </p> */}
                         <button
-                            className={cx('btn', 'transparent')}
+                            // className={cx('btn', 'transparent')}
                             id="sign-up-btn"
                         >
-                            Đăng ký
+                            {/* Đăng ký */}
                         </button>
                     </div>
                     <img

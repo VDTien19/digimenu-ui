@@ -1,19 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as httpRequest from '~/utils/httpRequest';
-import { getTables, getTableByName } from '~/api/tableApi';
+import { getTables, getTableByName, addTable as createTable, updateTable as updateTableById, deleteTable as deleteTableById } from '~/api/tableApi';
 
 export const fetchTable = createAsyncThunk(
     'table/fetchTable',
     async () => {
         const res = await getTables();
-        return res.data;
+        return res;
     }
 )
 
 export const addTable = createAsyncThunk(
     'table/addTable',
     async (newTable) => {
-        const res = await httpRequest.post('tables', newTable);
+        const res = createTable(newTable);
         return res;
     }
 );
@@ -21,7 +20,7 @@ export const addTable = createAsyncThunk(
 export const updateTable = createAsyncThunk(
     'table/updateTable',
     async ({ id, data }) => {
-        const res = await httpRequest.patch(`tables/${id}`, data);
+        const res = updateTableById(id, data);
         return res;
     }
 );
@@ -29,7 +28,7 @@ export const updateTable = createAsyncThunk(
 export const deleteTable = createAsyncThunk(
     'table/deleteTable',
     async (id) => {
-        await httpRequest.deleted(`tables/${id}`);
+        await deleteTableById(id);
         return id;
     }
 );
@@ -39,7 +38,7 @@ export const fetchTableByName = createAsyncThunk(
     async (name, { rejectWithValue }) => {
         try {
             const res = await getTableByName(name);
-            return res.data;
+            return res;
         } catch (err) {
             return rejectWithValue(err.message || 'Không thể lấy bàn theo tên');
         }
@@ -74,14 +73,14 @@ const tableSlice = createSlice({
             })
             // update
             .addCase(updateTable.fulfilled, (state, action) => {
-                const index = state.listTables.findIndex((item) => item.id === action.payload.id);
+                const index = state.listTables.findIndex((item) => item._id === action.payload._id);
                 if (index !== -1) {
                     state.listTables[index] = action.payload;
                 }
             })
             // delete
             .addCase(deleteTable.fulfilled, (state, action) => {
-                const index = state.listTables.findIndex((item) => item.id === action.payload);
+                const index = state.listTables.findIndex((item) => item._id === action.payload);
                 if (index !== -1) {
                     state.listTables.splice(index, 1);
                 }

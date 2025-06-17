@@ -50,29 +50,28 @@ export function AuthProvider({ children }) {
     };
 
     const login = async (email, password) => {
-    setLoading(true);
-    try {
-        const res = await authServices.login(email, password);
-        if (res.token) {
-            localStorage.setItem('token', res.token);
+        setLoading(true);
+        try {
+            const res = await authServices.login(email, password);
+            if (res.token) {
+                localStorage.setItem('token', res.token);
 
-            const user = await fetchUser();
-            setIsAuthenticated(true);
-            setError(null);
-            return user;
-        } else {
-            setError('Tài khoản hoặc mật khẩu không đúng.');
+                const user = await fetchUser();
+                setIsAuthenticated(true);
+                setError(null);
+                return user;
+            } else {
+                setError('Tài khoản hoặc mật khẩu không đúng.');
+                return null;
+            }
+        } catch (err) {
+            console.error('>>> Login error:', err);
+            setError('Lỗi đăng nhập. Vui lòng thử lại.');
             return null;
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error('>>> Login error:', err);
-        setError('Lỗi đăng nhập. Vui lòng thử lại.');
-        return null;
-    } finally {
-        setLoading(false);
-    }
-};
-
+    };
 
     const logout = () => {
         try {

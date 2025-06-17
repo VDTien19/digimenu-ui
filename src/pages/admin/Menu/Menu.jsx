@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import styles from './Menu.module.scss';
 import AdminContentHeader from '~/components/admin/AdminContentHeader';
 import TableActions from '~/components/admin/TableActions';
 import DataTable from '~/components/admin/DataTable';
 import {
-    fetchProducts,
-    addProduct,
-    updateProduct,
-    deleteProduct,
-} from '~/store/productSlice';
+    fetchMenuItems,
+    addMenuItemAsync,
+    updateMenuItemAsync,
+    deleteMenuItemAsync,
+} from '~/store/menuItemSlice';
 import MenuModal from '~/components/admin/MenuModal';
 import ConfirmModal from '~/components/ConfirmModal';
 import { formatCurrency } from '~/utils/formatCurrency';
@@ -24,11 +25,21 @@ import Image from '~/components/Images';
 
 const cx = classNames.bind(styles);
 
+const selectMenuData = createSelector(
+    (state) => state.menuItem.list || [],
+    (state) => state.category.list || [],
+    (menuItemList, categoryList) => ({
+        menuItemList,
+        categoryList,
+    })
+)
+
 function Menu() {
     const [searchParams] = useSearchParams();
-    const catid = searchParams.get('catid');  // get id from url to call api all products by category id
+    const catid = searchParams.get('catid');
 
-    const { dishes, setDishes, hasSearched, searchValue, setHasSearched } = useSearch();
+    const { dishes, setDishes, hasSearched, searchValue, setHasSearched } =
+        useSearch();
 
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [showMenuModal, setShowMenuModal] = useState(false);
@@ -37,13 +48,14 @@ function Menu() {
     const [isFetching, setIsFetching] = useState(false);
 
     const dispatch = useDispatch();
-    const { listProducts } = useSelector(
-        (state) => state.product,
-    );
-    const { list } = useSelector((state) => state.category);
+    // const { menuItemList, categoryList } = useSelector((state) => ({
+    //     menuItemList: state.menuItem.list,
+    //     categoryList: state.category.list,
+    // }));
+    const { menuItemList, categoryList } = useSelector(selectMenuData);
 
     useEffect(() => {
-        dispatch(fetchProducts());
+        dispatch(fetchMenuItems());
         dispatch(fetchCategories());
     }, [dispatch]);
 
@@ -98,29 +110,30 @@ function Menu() {
                 setIsFetching(true);
                 try {
                     setHasSearched(true);
-                    const res = await httpRequest.get(`menu_items?category_id=${catid}`);
-    
+                    const res = await httpRequest.get(
+                        `menu_items?category_id=${catid}`,
+                    );
+
                     const formatted = res.map((product, index) => ({
                         index: index + 1,
-                        id: product.id,
                         _id: product._id,
                         name: product.name,
                         price: formatCurrency(product.price),
                         description: product.description,
-                        image: product.image,
+                        image: product.image_url,
                         category_id: product.category_id,
                     }));
-    
+
                     setFormattedDishes(formatted);
                 } catch (error) {
-                    console.error("Fetch by category_id failed:", error);
+                    console.error('Fetch by category_id failed:', error);
                     setFormattedDishes([]);
                 } finally {
                     setIsFetching(false);
                 }
             }
         };
-    
+
         fetchByCategoryId();
     }, [catid]);
 
@@ -128,12 +141,11 @@ function Menu() {
         if (dishes.length > 0) {
             const formatted = dishes.map((product, index) => ({
                 index: index + 1,
-                id: product.id,
                 _id: product._id,
                 name: product.name,
                 price: formatCurrency(product.price),
                 description: product.description,
-                image: product.image,
+                image: product.image_url,
                 category_id: product.category_id,
             }));
             setFormattedDishes(formatted);
@@ -143,14 +155,13 @@ function Menu() {
     }, [dishes]);
 
     // const getProducts = listProducts.flatMap(product => product.products);
-    const formatProd = listProducts.map((product, index) => ({
+    const formatProd = menuItemList.map((product, index) => ({
         index: index + 1,
-        id: product.id,
         _id: product._id,
         name: product.name,
         price: formatCurrency(product.price),
         description: product.description,
-        image: product.image,
+        image: product.image_url,
         category_id: product.category_id,
     }));
 
@@ -167,28 +178,30 @@ function Menu() {
         }
 
         try {
-            if(formData.id) {
-                await dispatch(updateProduct({ id: formData.id, data: payload })).unwrap();
+            if (formData.id) {
+                await dispatch(
+                    updateMenuItemAsync({ id: formData.id, data: payload }),
+                ).unwrap();
             } else {
-                await dispatch(addProduct(payload)).unwrap();
+                await dispatch(addMenuItemAsync(payload)).unwrap();
             }
         } catch (error) {
             console.error(error);
         } finally {
             setShowMenuModal(false);
         }
-    }
+    };
 
     const handleDelete = async (id) => {
-        if(id) {
+        if (id) {
             try {
-                await dispatch(deleteProduct(id)).unwrap();
-                setShowModalConfirm(false)
+                await dispatch(deleteMenuItemAsync(id)).unwrap();
+                setShowModalConfirm(false);
             } catch (e) {
                 console.error(e);
             }
         }
-    }
+    };
 
     useEffect(() => {
         if (searchValue.trim() === '') {
@@ -196,7 +209,11 @@ function Menu() {
             const params = new URLSearchParams(window.location.search);
             if (params.has('catid')) {
                 params.delete('catid');
-                window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+                window.history.replaceState(
+                    {},
+                    '',
+                    `${window.location.pathname}?${params.toString()}`,
+                );
             }
 
             setDishes(formatProd);
@@ -217,23 +234,43 @@ function Menu() {
             </div>
 
             {isFetching ? (
-                <div className={cx('w-full', 'mt-50', 'flex', 'justify-center', 'items-center')}>
+                <div
+                    className={cx(
+                        'w-full',
+                        'mt-50',
+                        'flex',
+                        'justify-center',
+                        'items-center',
+                    )}
+                >
                     <Image className={cx('w-90')} src={images.loading} />
                 </div>
-            ) : (
-                catid || hasSearched ? (
-                    formattedDishes.length > 0 ? (
-                        <div>
-                            <DataTable columns={menuColumns} data={formattedDishes} />
-                        </div>
-                    ) : (
-                        <div className={cx('w-full', 'mt-50', 'flex', 'justify-center', 'items-center')}>
-                            <Image className={cx('w-90')} src={images.searchNotFound} />
-                        </div>
-                    )
+            ) : catid || hasSearched ? (
+                formattedDishes.length > 0 ? (
+                    <div>
+                        <DataTable
+                            columns={menuColumns}
+                            data={formattedDishes}
+                        />
+                    </div>
                 ) : (
-                    <DataTable columns={menuColumns} data={formatProd} />
+                    <div
+                        className={cx(
+                            'w-full',
+                            'mt-50',
+                            'flex',
+                            'justify-center',
+                            'items-center',
+                        )}
+                    >
+                        <Image
+                            className={cx('w-90')}
+                            src={images.searchNotFound}
+                        />
+                    </div>
                 )
+            ) : (
+                <DataTable columns={menuColumns} data={formatProd} />
             )}
 
             <MenuModal
@@ -241,7 +278,7 @@ function Menu() {
                 onClose={() => setShowMenuModal(false)}
                 onSave={handleSave}
                 data={selectItem}
-                categories={list}
+                categories={categoryList}
             />
 
             <ConfirmModal

@@ -4,7 +4,7 @@ import Select from 'react-select';
 
 import styles from './MenuModal.module.scss';
 import Modal from '~/components/Modal';
-import Image from '~/components/Images';
+import Image from '~/components/Images'; // Giả sử là custom component
 import { EditIcon } from '~/components/Icons';
 import PriceInput from '~/components/PriceInput';
 import { ChangeCameraIcon } from '~/components/Icons';
@@ -20,21 +20,21 @@ const parseCurrency = (currencyString) => {
 function MenuModal({ isOpen, onClose, data, onSave, categories }) {
     const [name, setName] = useState(data?.name || '');
     const [price, setPrice] = useState(data?.price || '');
-    const [imageFile, setImageFile] = useState(data?.image || ''); // hình ảnh được push lên server
-    const [imageUrl, setImageUrl] = useState(data?.image || ''); // lấy url tạm thời render hình ảnh
+    const [imageFile, setImageFile] = useState(null);
+    const [imageUrl, setImageUrl] = useState(data?.image || images.uploadImage); // Fallback
     const [description, setDescription] = useState(data?.description || '');
-    const [selectedCategory, setSelectedCategory] = useState(data?.category_id || '');
+    const [selectedCategory, setSelectedCategory] = useState(data?.category_id?._id || '');
 
     useEffect(() => {
         if (data) {
-            setName(data.name);
-            setImageUrl(data.image);
-            setDescription(data.description);
-            setPrice(parseCurrency(data.price));
-            setSelectedCategory(data.category_id);
+            console.log('🔍 Data received:', data); // Debug data
+            setName(data.name || '');
+            setImageUrl(data.image || images.uploadImage); // Đảm bảo lấy image_url
+            setDescription(data.description || '');
+            setPrice(parseCurrency(data.price) || 0);
+            setSelectedCategory(data.category_id?._id || '');
         } else {
             setName('');
-            // setImage(images.uploadImage);
             setImageUrl(images.uploadImage);
             setDescription('');
             setPrice(0);
@@ -44,28 +44,47 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
 
     const handleChangeImage = (e) => {
         const file = e.target.files[0];
-        if(file && file.type.startsWith('image/')) {
+        if (file && file.type.startsWith('image/')) {
             const imagePreviewUrl = URL.createObjectURL(file);
             setImageUrl(imagePreviewUrl);
             setImageFile(file);
         } else {
-            console.log("Không hợp lệ")
+            console.log('File không hợp lệ');
+            setImageUrl(images.uploadImage);
         }
-    }
+    };
 
     useEffect(() => {
         return () => {
-            if(imageUrl?.startsWith('blob:')) {
+            if (imageUrl?.startsWith('blob:')) {
                 URL.revokeObjectURL(imageUrl);
             }
-        }
+        };
     }, [imageUrl]);
 
     useEffect(() => {
-        // console.log("Image: ", imageUrl)
-    })
+        console.log('🔍 Image URL:', imageUrl); // Debug imageUrl
+    }, [imageUrl]);
 
     if (!isOpen) return null;
+
+    const handleSaveClick = () => {
+        onSave({
+            name,
+            price,
+            imageFile,
+            description,
+            selectedCategory,
+            id: data?._id,
+        });
+        onClose();
+    };
+
+    // Hàm xử lý lỗi khi ảnh không tải được
+    const handleImageError = () => {
+        console.log('🔍 Image failed to load, using fallback:', images.uploadImage);
+        setImageUrl(images.uploadImage);
+    };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -84,8 +103,11 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                 >
                     <Image
                         src={imageUrl}
-                        alt={name || 'image'}
-                        className={cx('rounded-2xl', 'w-92', 'object-cover')}
+                        alt={name || 'Hình ảnh món ăn'}
+                        className={cx('rounded-2xl', 'w-96', 'h-64', 'object-cover')}
+                        width={384}
+                        height={256}
+                        onError={handleImageError} // Xử lý lỗi tải ảnh
                     />
                     <div
                         className={cx(
@@ -100,6 +122,7 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                             'group-hover:opacity-100',
                             'transition-opacity',
                             'duration-300',
+                            'bg-black/50',
                         )}
                     >
                         <ChangeCameraIcon
@@ -108,6 +131,7 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                                 'top-1/2',
                                 'left-1/2',
                                 '-translate-1/2',
+                                'text-white',
                             )}
                         />
                         <input
@@ -127,9 +151,7 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                         />
                     </div>
                 </div>
-                <div
-                    className={cx('flex', 'flex-col', 'gap-8', 'items-center')}
-                >
+                <div className={cx('flex', 'flex-col', 'gap-8', 'items-center')}>
                     <div
                         className={cx(
                             'flex',
@@ -156,7 +178,13 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                             width="1.6rem"
                             stroke="#c19c58"
                             className={cx(
-                                'absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none peer-focus:hidden',
+                                'absolute',
+                                'right-2',
+                                'top-1/2',
+                                '-translate-y-1/2',
+                                'text-gray-400',
+                                'pointer-events-none',
+                                'peer-focus:hidden',
                             )}
                         />
                     </div>
@@ -171,7 +199,13 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                             width="1.6rem"
                             stroke="#c19c58"
                             className={cx(
-                                'absolute right-20 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none peer-focus:hidden',
+                                'absolute',
+                                'right-20',
+                                'top-1/2',
+                                '-translate-y-1/2',
+                                'text-gray-400',
+                                'pointer-events-none',
+                                'peer-focus:hidden',
                             )}
                         />
                     </div>
@@ -205,7 +239,6 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                                     ...base,
                                     height: '36px',
                                     padding: '0px 8px',
-                                    // paddingRight: 8,
                                 }),
                                 input: (base) => ({
                                     ...base,
@@ -223,12 +256,10 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                                 label: c.name,
                             }))}
                             defaultValue={
-                                data?.category_id
+                                data?.category_id?._id
                                     ? {
-                                          value: data.category_id,
-                                          label: categories.find(
-                                              (c) => c._id === data.category_id,
-                                          )?.name,
+                                          value: data.category_id._id,
+                                          label: data.category_id.name,
                                       }
                                     : null
                             }
@@ -258,18 +289,7 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                 >
                     <button
                         className={cx('py-2', 'px-4', 'action-btn')}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            onSave({
-                                name,
-                                price,
-                                imageFile,
-                                // imageUrl,
-                                description,
-                                selectedCategory,
-                                id: data?.id
-                            });
-                        }}
+                        onClick={handleSaveClick}
                     >
                         <span>Lưu</span>
                     </button>

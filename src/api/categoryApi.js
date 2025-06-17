@@ -21,7 +21,7 @@ export const getCategories = async () => {
 export const getCategoryById = async (id) => {
     try {
         const response = await httpRequest.get(`/categories/get/${id}`);
-        return response;
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to get category by id' };
     }

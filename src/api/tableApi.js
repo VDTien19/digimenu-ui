@@ -3,7 +3,7 @@ import * as httpRequest from '~/utils/httpRequest';
 export const getTables = async () => {
     try {
         const response = await httpRequest.get('/tables');
-        return response.data;
+        return response;
     } catch (error) {
         throw error.response ? error.response.data : { message: '>>> Fail to get tables' };
     }

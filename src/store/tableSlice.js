@@ -5,7 +5,7 @@ export const fetchTable = createAsyncThunk(
     'table/fetchTable',
     async () => {
         const res = await getTables();
-        return res;
+        return res.data;
     }
 )
 

@@ -9,6 +9,7 @@ import { EditIcon } from '~/components/Icons';
 import PriceInput from '~/components/PriceInput';
 import { ChangeCameraIcon } from '~/components/Icons';
 import images from '~/assets/images';
+import { LoadingIcon } from '~/components/Icons';
 
 const cx = classNames.bind(styles);
 
@@ -17,17 +18,32 @@ const parseCurrency = (currencyString) => {
     return Number(currencyString.replace(/[^\d]/g, ''));
 };
 
-function MenuModal({ isOpen, onClose, data, onSave, categories }) {
+function MenuModal({
+    isOpen,
+    onClose,
+    data,
+    onSave,
+    categories,
+    isLoading=false,
+}) {
+    // const [isLoading, setIsLoading] = useState(false);
+
     const [name, setName] = useState(data?.name || '');
     const [price, setPrice] = useState(data?.price || '');
     const [imageFile, setImageFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(data?.image || images.uploadImage); // Fallback
     const [description, setDescription] = useState(data?.description || '');
-    const [selectedCategory, setSelectedCategory] = useState(data?.category_id?._id || '');
+    const [selectedCategory, setSelectedCategory] = useState(
+        data?.category_id?._id || '',
+    );
+
+    useEffect(() => {
+        console.log("isLoading Modal: ", isLoading);
+    })
 
     useEffect(() => {
         if (data) {
-            console.log('🔍 Data received:', data); // Debug data
+            // console.log('🔍 Data received:', data);
             setName(data.name || '');
             setImageUrl(data.image || images.uploadImage); // Đảm bảo lấy image_url
             setDescription(data.description || '');
@@ -68,8 +84,8 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
 
     if (!isOpen) return null;
 
-    const handleSaveClick = () => {
-        onSave({
+    const handleSaveClick = async () => {
+        const success = await onSave({
             name,
             price,
             imageFile,
@@ -77,12 +93,17 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
             selectedCategory,
             id: data?._id,
         });
-        onClose();
+        if (success) {
+            onClose();
+        }
     };
 
     // Hàm xử lý lỗi khi ảnh không tải được
     const handleImageError = () => {
-        console.log('🔍 Image failed to load, using fallback:', images.uploadImage);
+        console.log(
+            '🔍 Image failed to load, using fallback:',
+            images.uploadImage,
+        );
         setImageUrl(images.uploadImage);
     };
 
@@ -104,7 +125,12 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                     <Image
                         src={imageUrl}
                         alt={name || 'Hình ảnh món ăn'}
-                        className={cx('rounded-2xl', 'w-96', 'h-64', 'object-cover')}
+                        className={cx(
+                            'rounded-2xl',
+                            'w-96',
+                            'h-64',
+                            'object-cover',
+                        )}
                         width={384}
                         height={256}
                         onError={handleImageError} // Xử lý lỗi tải ảnh
@@ -151,7 +177,9 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                         />
                     </div>
                 </div>
-                <div className={cx('flex', 'flex-col', 'gap-8', 'items-center')}>
+                <div
+                    className={cx('flex', 'flex-col', 'gap-8', 'items-center')}
+                >
                     <div
                         className={cx(
                             'flex',
@@ -301,6 +329,36 @@ function MenuModal({ isOpen, onClose, data, onSave, categories }) {
                     </button>
                 </div>
             </div>
+            {isLoading && (
+                <>
+                    <div
+                        className={cx(
+                            'fixed',
+                            'top-0',
+                            'left-0',
+                            'w-full',
+                            'h-full',
+                            'z-50',
+                            'flex',
+                            'items-center',
+                            'justify-center',
+                        )}
+                    >
+                        <div
+                            className={cx(
+                                'fixed',
+                                'top-1/2',
+                                'left-1/2',
+                                'animate-spin',
+                                'z-10000',
+                                '-translate-1/2',
+                            )}
+                        >
+                            <LoadingIcon width="2.4rem" height="2.4rem" />
+                        </div>
+                    </div>
+                </>
+            )}
         </Modal>
     );
 }

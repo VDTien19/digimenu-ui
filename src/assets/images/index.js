@@ -20,6 +20,7 @@ import uploadImage from '~/assets/images/upload-image.webp';
 import searchNotFound from '~/assets/images/search_not_found.svg';
 import loginImg from '~/assets/images/login.svg';
 import registerImg from '~/assets/images/register.svg';
+import loadingGif from '~/assets/images/icon-loading.gif';
 
 const images = {
     noImage,
@@ -44,6 +45,7 @@ const images = {
     searchNotFound,
     loginImg,
     registerImg,
+    loadingGif
 };
 
 export default images;

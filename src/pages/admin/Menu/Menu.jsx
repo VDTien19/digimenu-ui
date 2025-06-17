@@ -22,6 +22,8 @@ import { useSearch } from '~/contexts/SearchContext';
 import * as httpRequest from '~/utils/httpRequest';
 import images from '~/assets/images';
 import Image from '~/components/Images';
+import toast from 'react-hot-toast';
+import { LoadingIcon } from '~/components/Icons';
 
 const cx = classNames.bind(styles);
 
@@ -46,6 +48,7 @@ function Menu() {
     const [selectItem, setSelectItem] = useState(null);
     const [formattedDishes, setFormattedDishes] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const dispatch = useDispatch();
     // const { menuItemList, categoryList } = useSelector((state) => ({
@@ -58,6 +61,10 @@ function Menu() {
         dispatch(fetchMenuItems());
         dispatch(fetchCategories());
     }, [dispatch]);
+
+    useEffect(() => {
+        console.log("isLoading Menu: ", isLoading);
+    })
 
     const menuColumns = [
         {
@@ -178,27 +185,42 @@ function Menu() {
         }
 
         try {
+            setIsLoading(true);
             if (formData.id) {
                 await dispatch(
                     updateMenuItemAsync({ id: formData.id, data: payload }),
                 ).unwrap();
+                setIsLoading(false);
+                toast('Cập nhật món ăn thành công.');
             } else {
                 await dispatch(addMenuItemAsync(payload)).unwrap();
+                setIsLoading(false);
+                toast('Thêm món ăn thành công.');
             }
+            return true;
         } catch (error) {
             console.error(error);
+            setIsLoading(false);
+            toast('Có lỗi xảy ra. Vui lòng thử lại.');
+            return false;
         } finally {
-            setShowMenuModal(false);
+            setIsLoading(false);
         }
     };
 
     const handleDelete = async (id) => {
+        setIsLoading(true);
         if (id) {
             try {
                 await dispatch(deleteMenuItemAsync(id)).unwrap();
+                toast('Đã xoá món ăn.')
                 setShowModalConfirm(false);
+                setIsLoading(false);
             } catch (e) {
+                toast('Có lỗi xảy ra khi xoá món ăn.')
                 console.error(e);
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -279,6 +301,7 @@ function Menu() {
                 onSave={handleSave}
                 data={selectItem}
                 categories={categoryList}
+                isLoading={isLoading}
             />
 
             <ConfirmModal
@@ -289,8 +312,31 @@ function Menu() {
                 }
                 isOpen={showModalConfirm}
                 onClose={() => setShowModalConfirm(false)}
-                onConfirm={() => handleDelete(selectItem?.id)}
+                onConfirm={() => handleDelete(selectItem?._id)}
             />
+
+            {/* {isLoading && ( */}
+                    {/* <>
+                        <div
+                            className={cx(
+                                'fixed',
+                                'top-0',
+                                'left-0',
+                                'w-full',
+                                'h-full',
+                                'bg-opacity-10000',
+                                'z-50',
+                                'flex',
+                                'items-center',
+                                'justify-center'
+                            )}
+                        >
+                            <div className={cx('fixed', 'top-1/2', 'left-1/2', 'animate-spin', 'z-10000', '-translate-1/2')}>
+                                <LoadingIcon width='2.4rem' height='2.4rem' />
+                            </div>
+                        </div>
+                    </> */}
+                {/* )} */}
         </div>
     );
 }

@@ -54,33 +54,6 @@ const mockData = [
     { date: '2025-05-31', revenue: 690000 },
 ];
 
-// const mockInvoices = {
-//   '2025-05-01': [
-//     { id: 'HD001', total: 220000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 },
-//     { id: 'HD002', total: 300000 }
-//   ],
-//   '2025-05-02': [
-//     { id: 'HD003', total: 880000 }
-//   ],
-//   // ... thêm ngày khác nếu cần
-// };
-
 export default function RevenueChart() {
     const [selectedDate, setSelectedDate] = useState(null);
     const totalRevenue = mockData.reduce((sum, item) => sum + item.revenue, 0);

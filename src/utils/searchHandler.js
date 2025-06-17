@@ -20,7 +20,7 @@ export const searchByPath = async (pathname, searchValue, setters) => {
         },
         {
             path: 'menu',
-            endpoint: 'menu_items',
+            endpoint: 'menu-items',
             setter: setters.setDishes,
             queryParam: 'name',
         },
@@ -53,7 +53,7 @@ export const searchByPath = async (pathname, searchValue, setters) => {
         if (lastSegment === item.path) {
             const res = await httpRequest.get(`${item.endpoint}?${item.queryParam}=${encodedKeyword}`);
             console.log('encodedKeyword:', encodedKeyword);
-            item.setter(res);
+            item.setter(res?.data);
             break;
         }
     }

@@ -12,6 +12,7 @@ import {
     useGetRevenueQuery,
     useGetTopProductsQuery,
 } from '~/store/dashboardSlice';
+import { getRevenueByMonth } from '~/api/adminApi'
 
 const cx = classNames.bind(styles);
 
@@ -21,7 +22,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await httpRequests.get('/revenueComparison');
+                const response = await getRevenueByMonth();
                 setData(response);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);

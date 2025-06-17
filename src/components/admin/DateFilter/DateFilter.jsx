@@ -19,6 +19,15 @@ const quickOptions = [
         },
     },
     {
+        label: '30 ngày qua',
+        value: 'last30days',
+        getRange: () => {
+            const to = new Date();
+            const from = subDays(to, 29);
+            return { from, to };
+        },
+    },
+    {
         label: 'Tháng này',
         value: 'thisMonth',
         getRange: () => {
@@ -45,7 +54,7 @@ const quickOptions = [
 function DateFilter({ onChange }) {
     const [from, setFrom] = useState(null);
     const [to, setTo] = useState(null);
-    const [activeOption, setActiveOption] = useState('');
+    const [activeOption, setActiveOption] = useState('last30days');
 
     useEffect(() => {
         if (from && to) {

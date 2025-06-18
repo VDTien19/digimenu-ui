@@ -19,16 +19,22 @@ function Message() {
     const { slug } = useSlug();
 
     const { orderData, tableData } = location.state || {};
-    const roomName = tableData ? `room_table_${tableData._id}` : '';
 
-    // Khởi tạo messages từ localStorage
+    // Lấy room name: từ tableData nếu có, nếu không thì lấy từ localStorage
+    const initialRoomName = tableData
+        ? `room_table_${tableData._id}`
+        : localStorage.getItem('room_name') || '';
+
+    const [roomName] = useState(initialRoomName);
+
+    // Lấy messages từ localStorage
     const [messages, setMessages] = useState(() => {
-        const savedMessages = localStorage.getItem(`messages_${roomName}`);
+        const savedMessages = localStorage.getItem(`messages_${initialRoomName}`);
         return savedMessages ? JSON.parse(savedMessages) : [];
     });
 
     useEffect(() => {
-        if (!tableData) return;
+        if (!roomName) return;
 
         socket.connect();
 
@@ -42,42 +48,36 @@ function Message() {
             console.log('🔥 [customer_notification]:', data);
             setMessages((prev) => {
                 const updatedMessages = [...prev, data];
-                // Lưu messages vào localStorage
                 localStorage.setItem(`messages_${roomName}`, JSON.stringify(updatedMessages));
+                localStorage.setItem('room_name', roomName);
                 return updatedMessages;
             });
-            console.log('Target:', data.target);
         });
 
-        const callOrderApi = async () => {
-            try {
-                if (orderData) {
+        if (orderData && tableData) {
+            const callOrderApi = async () => {
+                try {
                     const res = await dispatch(createOrder(orderData)).unwrap();
-                    console.log('✅ Order created:', res);
-                    console.log('✅ Success:', res.success);
                     if (res.success === true) {
                         dispatch(clearCart());
-                        console.log('Đã xoá');
-                        // Xóa orderData khỏi state, giữ tableData
                         navigate(`/${slug}/status/${tableName}?encode=${tableData.encode}`, {
-                            state: { tableData }, // Không cần orderData: null
-                            replace: true, // Thay thế history entry
+                            state: { tableData },
+                            replace: true,
                         });
                     }
+                } catch (err) {
+                    console.error('❌ Order failed:', err);
                 }
-            } catch (err) {
-                console.error('❌ Order failed:', err);
-            }
-        };
-
-        callOrderApi();
+            };
+            callOrderApi();
+        }
 
         return () => {
             socket.emit('leave_room', { room: roomName });
             socket.off('customer_notification');
             socket.off('connect');
         };
-    }, [tableName, dispatch, navigate, orderData, tableData, roomName, slug]);
+    }, [roomName, dispatch, navigate, orderData, tableData, tableName, slug]);
 
     return (
         <div className={cx('wrapper')}>
